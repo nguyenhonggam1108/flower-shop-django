@@ -1,0 +1,229 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>{{ title|default:"Bloom & Story" }}</title>
+
+  <!-- Favicons -->
+  <link href="{% static 'assets/img/favicon.png' %}" rel="icon">
+  <link href="{% static 'assets/img/apple-touch-icon.png' %}" rel="apple-touch-icon">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="{% static 'assets/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/aos/aos.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/swiper/swiper-bundle.min.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/glightbox/css/glightbox.min.css' %}" rel="stylesheet">
+
+  <!-- Main CSS File -->
+  <link href="{% static 'assets/css/main.css' %}?v=2" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="{% static 'css/account.css' %}?v=2">
+  <link rel="stylesheet" href="{% static 'css/wishlist.css' %}?v=2">
+  <link rel="stylesheet" href="{% static 'css/product.css' %}?v=2">
+  <link rel="stylesheet" href="{% static 'css/checkout.css' %}">
+  <style>
+/* Card Layout */
+.card.supplier-request-card, .card.supplier-myoffer-card {
+    border-radius: 18px;
+    border: none;
+    box-shadow: 0 8px 16px -8px #b8b8b8;
+    background: linear-gradient(120deg,#f5fbff 60%,#e9f4ff 100%);
+    margin-bottom: 24px;
+    transition: box-shadow .15s, transform .15s;
+}
+.card.supplier-request-card:hover, .card.supplier-myoffer-card:hover {
+    box-shadow: 0 12px 22px -4px #4e4376;
+    transform: scale(1.018);
+}
+
+/* Title and icon */
+.card-title-strong {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #0d6efd;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+}
+.myoffer-status-badge,
+.request-offer-badge {
+    font-size: 1rem;
+    padding: 8px 20px;
+    border-radius: 25px;
+    font-weight: 600;
+    box-shadow: 0 2px 12px -4px #b5b5b5;
+    margin-right: 10px;
+}
+.myoffer-status-badge.bg-success,
+.request-offer-badge.bg-success {
+    background: #dafbe1 !important;
+    color: #157347 !important;
+}
+.myoffer-status-badge.bg-danger,
+.request-offer-badge.bg-danger {
+    background: #fbe3e2 !important; color:#c51603 !important;
+}
+.myoffer-status-badge.bg-warning,
+.request-offer-badge.bg-warning {
+    background: #ffe7b5 !important; color: #79460a !important;
+}
+.myoffer-status-badge.bg-secondary,
+.request-offer-badge.bg-secondary {
+    background: #e6e6e6 !important; color: #565a5c !important;
+}
+
+.supplier-offer-action a.btn {
+    min-width: 110px;
+    letter-spacing: .4px;
+}
+.supplier-offer-action form .btn {
+    min-width: 110px;
+}
+/* Timeline marker */
+.timeline-marker {
+    display: inline-block;
+    border-radius: 50%;
+    width: 17px;
+    height: 17px;
+    vertical-align: middle;
+    margin-right: 7px;
+    background: #0d6efd;
+    box-shadow: 0 2px 6px -2px #777;
+}
+</style>
+
+  <!-- ✅ CSS riêng cho giỏ hàng -->
+  <link rel="stylesheet" href="{% static 'cart.css' %}">
+</head>
+
+<body class="index-page">
+
+    {% if messages %}
+    <div id="toast-container"
+         style="position: fixed; top: 20px; right: 20px; z-index: 9999;">
+      {% for message in messages %}
+        <div class="alert alert-success shadow-sm mb-2 toast-msg">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+
+<header id="header" class="header d-flex align-items-center light-background sticky-top">
+  <div class="container-fluid position-relative d-flex align-items-center justify-content-between">
+
+    <!-- Logo -->
+    <a href="{% url 'index' %}" class="logo d-flex align-items-center me-auto me-xl-0">
+      <h1 class="sitename">Bloom & Story</h1>
+    </a>
+
+    <!-- ========== SUPPLIER USER DROPDOWN ========== -->
+    {% if request.user.is_authenticated and request.user.supplier_profile %}
+    <div class="dropdown">
+
+      <!-- Avatar + Name -->
+      <a class="d-flex align-items-center text-decoration-none dropdown-toggle"
+         href="#"
+         id="supplierMenu"
+         data-bs-toggle="dropdown"
+         aria-expanded="false"
+         style="cursor:pointer;">
+
+        <!-- Avatar dạng chữ cái đầu -->
+        <div style="
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #4e73df;
+            color: white;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 10px;">
+
+          {{ request.user.supplier_profile.company_name|slice:":1"|upper }}
+        </div>
+
+        <!-- Supplier Name -->
+        <span class="fw-semibold">
+          {{ request.user.supplier_profile.company_name }}
+        </span>
+      </a>
+
+      <!-- Dropdown menu -->
+      <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="supplierMenu">
+
+        <li>
+          <a class="dropdown-item" href="{% url 'supplier_portal:supplier_profile' %}">
+            <i class="fa-solid fa-user me-2"></i> Thông tin tài khoản
+          </a>
+        </li>
+
+        <li>
+          <a class="dropdown-item" href="{% url 'supplier_portal:supplier_my_requests' %}">
+            <i class="fa-solid fa-list-check me-2"></i> Yêu cầu của tôi
+          </a>
+        </li>
+
+        <li>
+          <a class="dropdown-item" href="{% url 'supplier_portal:supplier_request_list' %}">
+            <i class="fa-solid fa-list-check me-2"></i> Phiếu yêu cầu
+          </a>
+        </li>
+
+        <li><hr class="dropdown-divider"></li>
+
+        <li>
+          <a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}?role=supplier">
+            <i class="fa-solid fa-right-from-bracket me-2"></i> Đăng xuất
+          </a>
+        </li>
+
+      </ul>
+
+    </div>
+    {% endif %}
+
+  </div>
+</header>
+
+
+
+  {% block content %}{% endblock %}
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const toasts = document.querySelectorAll(".toast-msg");
+
+        toasts.forEach((toast) => {
+            setTimeout(() => {
+                toast.style.transition = "opacity 0.5s ease";
+                toast.style.opacity = "0";
+
+                // remove khỏi DOM sau khi fade-out
+                setTimeout(() => toast.remove(), 500);
+            }, 5000); // 5 giây
+        });
+    });
+    </script>
+
+    <!-- Bootstrap JS (bắt buộc cho dropdown) -->
+    <script src="{% static 'assets/vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+
+    <!-- Các thư viện JS khác nếu cần -->
+    <script src="{% static 'assets/vendor/aos/aos.js' %}"></script>
+    <script src="{% static 'assets/vendor/swiper/swiper-bundle.min.js' %}"></script>
+    <script src="{% static 'assets/vendor/glightbox/js/glightbox.min.js' %}"></script>
+
+</body>
+</html>

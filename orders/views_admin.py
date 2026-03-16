@@ -1,3 +1,4 @@
+import pdfkit
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import ListView, DetailView, View
 from django.contrib import messages
@@ -7,7 +8,10 @@ from .models import Order, OrderItem, DeliveryProof
 from .forms_admin import OrderStatusForm, DeliveryProofForm
 from django.core.paginator import Paginator
 from django.db.models import Q
-
+from django.views import View
+from django.template.loader import render_to_string
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
 class StaffRequiredMixin(UserPassesTestMixin):
     def test_func(self):
         return self.request.user.is_active and self.request.user.is_staff
@@ -80,3 +84,17 @@ class DeliveryProofCreateView(LoginRequiredMixin, StaffRequiredMixin, View):
             proof.save()
         messages.success(request, "Đã lưu ảnh giao hàng.")
         return redirect(reverse('orders_admin:detail', kwargs={'order_id': order.id}))
+
+
+class OrderInvoicePDFView(View):
+    def get(self, request, order_id):
+        order = get_object_or_404(Order, id=order_id)
+        config = pdfkit.configuration(wkhtmltopdf=r"C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")  # đường dẫn bạn đã xác nhận đúng
+        html = render_to_string("orders/order_pdf.html", {"order": order})  # Sử dụng template của bạn
+        try:
+            pdf = pdfkit.from_string(html, False, configuration=config)
+            response = HttpResponse(pdf, content_type="application/pdf")
+            response["Content-Disposition"] = f'inline; filename="HoaDon_KhachHang_{order.id}.pdf"'
+            return response
+        except Exception as e:
+            return HttpResponse(f"Lỗi tạo PDF: {e}", status=500)

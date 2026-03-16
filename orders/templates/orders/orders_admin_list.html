@@ -70,6 +70,7 @@
         <td>{{ order.created_at|date:"Y-m-d H:i" }}</td>
         <td>
           <a href="{% url 'orders_admin:detail' order.id %}" class="btn btn-sm btn-info">Chi tiết</a>
+          <a href="{% url 'orders_admin:order_invoice_pdf' order.id %}" class="btn btn-sm btn-outline-secondary" target="_blank">In HĐ</a>
         </td>
       </tr>
       {% empty %}

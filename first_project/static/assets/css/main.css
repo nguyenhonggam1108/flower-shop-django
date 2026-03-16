@@ -993,9 +993,244 @@ body.index-page .category-card p {
   right: -10px;
 }
 
+
+section {
+    padding: 80px 0;
+}
+
+.container {
+    max-width: 900px;
+    margin: auto;
+    text-align: center;
+}
+
+h1, h2 {
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+p {
+    color: #555;
+    line-height: 1.8;
+    margin-bottom: 16px;
+}
+
+.tagline {
+    font-size: 18px;
+    font-style: italic;
+    color: #888;
+}
+
+.about-luxury {
+    background-color: #faf7f5;
+}
+
+.about-cta {
+    background-color: #1c1c1c;
+    color: #fff;
+}
+
+.about-cta p {
+    color: #ddd;
+}
+
+.btn-primary {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 12px 30px;
+    background-color: #c9a063;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 30px;
+}
+
+/* about.css — Bloom & Story */
+
+body {
+    background: #f5f7fa;
+    font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+    color: #262626;
+}
+
+section[class^="about-"] {
+    padding: 62px 0;
+    position: relative;
+}
+
+.about-landing {
+    background: linear-gradient(120deg, #ffe5ef 0%, #eaf6fb 100%);
+    text-align: center;
+    padding-top: 70px;
+    padding-bottom: 70px;
+}
+.about-landing h1 {
+    font-size: 2.55rem;
+    font-weight: 700;
+    color: #cf0277;
+    letter-spacing: 1.2px;
+    margin-bottom: 24px;
+}
+.about-landing .tagline {
+    font-size: 1.35rem;
+    color: #414141;
+    font-style: italic;
+    font-weight: 500;
+    margin-bottom: 18px;
+}
+.about-landing p {
+    font-size: 1.08rem;
+    color: #546e7a;
+    margin-bottom: 7px;
+}
+
+/* Luxury */
+.about-luxury {
+    background: #fff;
+    border-radius: 30px;
+    margin: 38px 0;
+    box-shadow: 0 2px 28px rgba(185, 162, 191, 0.13);
+    padding-top: 54px;
+    padding-bottom: 54px;
+    text-align: center;
+}
+.about-luxury h2 {
+    color: #a747a1;
+    font-size: 2rem;
+    margin-bottom: 18px;
+    font-weight: 700;
+}
+.about-luxury p {
+    color: #6b3560;
+    font-size: 1.02rem;
+    line-height: 1.95;
+    margin-bottom: 7px;
+}
+.about-luxury strong {
+    color: #d63384;
+}
+
+.about-minimal {
+    background: linear-gradient(90deg, #eaf6fb 45%, #ffd2ef 100%);
+    margin: 38px 0;
+    border-radius: 28px;
+    padding-top: 46px;
+    padding-bottom: 46px;
+    text-align: center;
+    box-shadow: 0 2px 16px rgba(130, 193, 215, 0.07);
+}
+.about-minimal h2 {
+    color: #36beca;
+    font-size: 1.38rem;
+    margin-bottom: 14px;
+    font-weight: 700;
+}
+.about-minimal p {
+    color: #406363;
+    font-size: 1.06rem;
+    line-height: 1.8;
+}
+
+/* SEO section */
+.about-seo {
+    background: #fff;
+    margin-bottom: 36px;
+    padding-top: 42px;
+    padding-bottom: 42px;
+    border-radius: 24px;
+    box-shadow: 0 2px 16px rgba(214, 51, 132, 0.08);
+}
+.about-seo h2 {
+    color: #d63384;
+    font-size: 1.45rem;
+    font-weight: 700;
+    margin-bottom: 14px;
+}
+.about-seo p {
+    color: #835756;
+    line-height: 1.8;
+    font-size: 1rem;
+}
+.about-seo ul {
+    list-style: none;
+    padding-left: 0;
+    margin-top: 16px;
+}
+.about-seo ul li {
+    margin-bottom: 4px;
+    font-size: 1.03rem;
+    color: #34bfa3;
+    font-weight: 500;
+}
+.about-seo ul li::before {
+    content: "🌸";
+    margin-right: 5px;
+    color: #cf0277;
+    font-size: 1.13em;
+    vertical-align: middle;
+}
+
+/* Call To Action */
+.about-cta {
+    background: linear-gradient(100deg, #ffe8f1 60%, #e6f5fe 100%);
+    border-radius: 35px;
+    box-shadow: 0 5px 25px rgba(207, 2, 119, 0.09);
+    text-align: center;
+    padding-top: 48px;
+    padding-bottom: 54px;
+    margin: 42px 0 0 0;
+}
+.about-cta h2 {
+    color: #cf0277;
+    font-weight: 700;
+    font-size: 1.42rem;
+    margin-bottom: 22px;
+}
+.about-cta p {
+    color: #464662;
+    font-size: 1.10rem;
+    margin-bottom: 20px;
+}
+.about-cta .btn-primary, .about-cta a.btn-primary {
+    display: inline-block;
+    margin-top: 16px;
+    padding: 11px 34px;
+    font-size: 1.08rem;
+    background: linear-gradient(93deg, #cf0277 80%, #923993 100%);
+    color: #fff !important;
+    border: none;
+    border-radius: 24px;
+    font-weight: bold;
+    box-shadow: 0 3px 12px rgba(207,2,119,0.11);
+    transition: background 0.18s;
+    letter-spacing: 0.5px;
+    text-decoration: none;
+}
+.about-cta .btn-primary:hover, .about-cta a.btn-primary:hover {
+    background: linear-gradient(93deg, #a74297 70%, #cf0277 100%);
+    color: #fff !important;
+}
+
+@media (max-width: 900px) {
+    section[class^="about-"] .container {
+        padding: 0 8px;
+    }
+    .about-luxury, .about-minimal, .about-seo, .about-cta { padding: 28px 0; }
+}
+
+@media (max-width: 600px) {
+    .about-landing, .about-luxury, .about-minimal, .about-seo, .about-cta {
+        padding-top: 22px !important;
+        padding-bottom: 22px !important;
+        margin: 18px 0 !important;
+    }
+    h1, .about-landing h1 { font-size: 1.6rem !important; }
+    h2 { font-size: 1.06rem !important; }
+}
+
 /*--------------------------------------------------------------
 # Starter Section Section
 --------------------------------------------------------------*/
 .starter-section {
   /* Add your styles here */
 }
+

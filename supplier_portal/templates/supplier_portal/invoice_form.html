@@ -1,0 +1,134 @@
+{% extends "dashboard/base_admin.html" %}
+{% load humanize %}
+{% load humanize zip_extras %}
+{% load material_extras %}
+{% block content %}
+
+<h2>PHIẾU NHẬP KHO</h2>
+<p><b>Nhà cung cấp:</b> {{ supplier_info.company_name }}</p>
+<ul style="list-style:none;">
+    <li><b>Mã số thuế:</b> {{ supplier_info.tax_code }}</li>
+    <li><b>Điện thoại:</b> {{ supplier_info.phone }}</li>
+    <li><b>Email:</b> {{ supplier_info.email }}</li>
+    <li><b>Địa chỉ:</b> {{ supplier_info.address }}</li>
+</ul>
+<p><b>Phiếu yêu cầu:</b> #{{ request_obj.id }}</p>
+
+<form method="post">
+  {% csrf_token %}
+    {{ formset.management_form }}
+  <!-- --- Thêm lại khung nhập VAT (%) --- -->
+  <div class="mb-3" style="max-width:200px;">
+    <label for="{{ form.vat_percent.id_for_label }}"><b>VAT (%)</b></label>
+    {{ form.vat_percent }}
+  </div>
+
+  <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Nguyên liệu</th>
+          <th>SL yêu cầu</th>
+          <th>SL nhập</th>
+          <th>Đơn giá</th>
+          <th>SL còn thiếu</th>
+          <th>Tổng tiền</th>
+        </tr>
+      </thead>
+      <tbody>
+          {% for f, row in formset|zip_lists:display_rows %}
+          <tr>
+            <td>
+                {{ f.material }}
+                {{ f.initial.material|material_name_by_id }}
+            </td>
+            <td>
+              {{ f.requested_qty }} <!-- readonly input -->
+            </td>
+            <td>{{ f.received_qty }}</td>
+            <td>{{ f.unit_price }}</td>
+            <td class="missing_qty_cell"></td>
+            <td class="item_total_cell"></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="row justify-content-end" style="max-width:600px; margin-left:auto;">
+      <div class="col-6 text-end"><b>Tạm tính:</b></div>
+      <div class="col-6"><span id="subtotal_block">0</span></div>
+      <div class="col-6 text-end"><b>VAT (<span id="vat_percent_disp">{{ vat_percent }}</span>%):</b></div>
+      <div class="col-6"><span id="vat_block">0</span></div>
+      <div class="col-6 text-end"><b>Thành tiền:</b></div>
+      <div class="col-6"><span id="grand_total_block">0</span></div>
+    </div>
+
+  <button class="btn btn-success mt-3">
+    Xác nhận & Nhập kho
+  </button>
+
+    {% if form.errors %}
+<div class="alert alert-danger">
+    <b>Lỗi mẫu phiếu:</b>
+    {{ form.errors }}
+</div>
+{% endif %}
+{% if formset.non_form_errors %}
+<div class="alert alert-danger">
+    <b>Lỗi dòng dữ liệu:</b>
+    {{ formset.non_form_errors }}
+</div>
+{% endif %}
+{% for f in formset.forms %}
+  {% if f.errors %}
+    <div class="alert alert-danger">
+      <b>Lỗi dòng:</b>
+      {{ f.errors }}
+    </div>
+  {% endif %}
+{% endfor %}
+</form>
+
+<script>
+function updateMissingAndTotal() {
+    let rows = document.querySelectorAll('table.table-bordered tbody tr');
+    let subtotal = 0;
+    rows.forEach(function(row) {
+        let reqQtyInput = row.querySelector('input[name$=requested_qty]');
+        let recQtyInput = row.querySelector('input[name$=received_qty]');
+        let unitPriceInput = row.querySelector('input[name$=unit_price]');
+        let missingCell = row.querySelector('.missing_qty_cell');
+        let totalCell = row.querySelector('.item_total_cell');
+
+        // SL yêu cầu
+        let req_qty = reqQtyInput ? parseFloat(reqQtyInput.value) || 0 : parseFloat(row.querySelector('.requested_qty').innerText) || 0;
+        // SL nhập
+        let rec_qty = recQtyInput ? parseFloat(recQtyInput.value) || 0 : 0;
+        // Đơn giá
+        let unit_price = unitPriceInput ? parseFloat(unitPriceInput.value) || 0 : 0;
+
+        // SL còn thiếu
+        let missing = req_qty - rec_qty;
+        if(missingCell) missingCell.innerText = missing > 0 ? missing : 0;
+
+        // Tổng tiền mã hàng
+        let item_total = rec_qty * unit_price;
+        if(totalCell) totalCell.innerText = item_total > 0 ? item_total.toLocaleString() : "";
+        subtotal += item_total;
+    });
+    // TÍNH TỔNG & VAT
+    document.getElementById('subtotal_block').innerText = subtotal.toLocaleString();
+    let vat_percent = parseFloat(document.getElementById('{{ form.vat_percent.id_for_label }}').value) || 0;
+    document.getElementById('vat_percent_disp').innerText = vat_percent || 0;
+    let vat = subtotal * vat_percent/100;
+    document.getElementById('vat_block').innerText = vat.toLocaleString();
+    document.getElementById('grand_total_block').innerText = (subtotal+vat).toLocaleString();
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+    let inputs = document.querySelectorAll('input[name$=requested_qty],input[name$=received_qty],input[name$=unit_price],#{{ form.vat_percent.id_for_label }}');
+    inputs.forEach(el => el.addEventListener('input', updateMissingAndTotal));
+    updateMissingAndTotal();
+});
+</script>
+
+{% endblock %}

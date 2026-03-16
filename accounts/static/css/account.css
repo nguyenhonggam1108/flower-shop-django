@@ -170,3 +170,23 @@ body {
   100% { opacity: 0; display: none; }
 }
 
+
+/* Thêm vào css/account.css */
+.message.error {
+  background-color: #ffe5e5;
+  color: #a70000;
+  border: 1px solid #ce3b3b;
+  padding: 10px 15px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+
+
+
+
+
+
+
+

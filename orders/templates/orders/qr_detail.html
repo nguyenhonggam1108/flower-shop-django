@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% block title %}Tra cứu đơn hàng Của Bạn {% endblock %}
+{% load humanize %}
+{% block content %}
+<div class="container mt-5 mb-5" style="max-width:650px;">
+  <div class="card shadow-lg rounded">
+    <div class="card-header bg-success text-white text-center py-3">
+      <h2 class="mb-0"><i class="bi bi-qr-code-scan"></i> Tra cứu đơn hàng QR</h2>
+    </div>
+    <div class="card-body">
+
+      <div class="mb-4 text-center">
+        <span class="badge 
+            {% if order.status == 'pending' %} bg-warning text-dark
+            {% elif order.status == 'completed' %} bg-success
+            {% elif order.status == 'cancelled' %} bg-danger
+            {% elif order.status == 'delivering' %} bg-info text-dark
+            {% else %} bg-secondary
+            {% endif %}
+            py-2 px-3 fs-5">
+          {{ order.get_status_display }}
+        </span>
+      </div>
+
+      <div class="mb-3 row">
+        <label class="col-sm-5 col-form-label fw-bold">Mã đơn hàng:</label>
+        <div class="col-sm-7">#{{ order.id }}</div>
+      </div>
+      <div class="mb-3 row">
+        <label class="col-sm-5 col-form-label fw-bold">Tên khách hàng:</label>
+        <div class="col-sm-7">{{ order.full_name }}</div>
+      </div>
+      <div class="mb-3 row">
+        <label class="col-sm-5 col-form-label fw-bold">Ngày đặt:</label>
+        <div class="col-sm-7">{{ order.created_at|date:"d/m/Y H:i" }}</div>
+      </div>
+      <div class="mb-3 row">
+        <label class="col-sm-5 col-form-label fw-bold">Địa chỉ nhận:</label>
+        <div class="col-sm-7">{{ order.shipping_address }}</div>
+      </div>
+      <div class="mb-3 row">
+        <label class="col-sm-5 col-form-label fw-bold">Phương thức giao hàng:</label>
+        <div class="col-sm-7">{{ order.get_shipping_method_display }}</div>
+      </div>
+      <div class="mb-3 row">
+        <label class="col-sm-5 col-form-label fw-bold">Thanh toán:</label>
+        <div class="col-sm-7">{{ order.get_payment_method_display }}</div>
+      </div>
+
+      <hr>
+      <h5 class="fw-bold text-success mb-3 text-center mt-3">Sản phẩm đã đặt</h5>
+        <div class="mb-4">
+          {% for item in order.items.all %}
+            <div class="product-item-box d-flex flex-column flex-md-row align-items-center justify-content-between mb-2 p-3 rounded shadow-sm bg-light"
+                 style="border:1px solid #e3e3e3;">
+              <div class="fw-medium text-dark text-center text-md-start" style="flex: 2;">
+                {{ item.product.name }}
+              </div>
+              <div class="d-flex align-items-center gap-2 mt-2 mt-md-0" style="flex: 1; min-width:120px; justify-content: flex-end;">
+                <span class="badge bg-secondary rounded-pill px-3 py-2">x{{ item.quantity }}</span>
+                <span class="fw-bold text-danger fs-5 ms-3">{{ item.product.price|floatformat:0|intcomma }}<span style="font-size:0.9em">₫</span></span>
+              </div>
+            </div>
+          {% empty %}
+            <div class="alert alert-secondary text-center">Không có sản phẩm nào!</div>
+          {% endfor %}
+        </div>
+
+      <div class="d-flex justify-content-between fw-bold fs-5">
+        <div>Tổng tiền:</div>
+        <div class="text-danger">{{ order.total_amount|floatformat:0|intcomma }}₫</div>
+      </div>
+        {% if order.delivery_proofs.all %}
+      <hr>
+      <h5 class="fw-bold text-success mb-3">Ảnh giao hàng</h5>
+      <div class="d-flex flex-wrap gap-3 justify-content-center mb-3">
+        {% for proof in order.delivery_proofs.all %}
+          <div class="text-center mb-2">
+            <img src="{{ proof.image.url }}" class="img-thumbnail mb-1"
+                 style="max-width:120px;max-height:120px;object-fit:cover;">
+            {% if proof.note %}
+              <div class="small text-muted">{{ proof.note }}</div>
+            {% endif %}
+            <div class="small text-secondary">{{ proof.delivered_at|date:"d/m/Y H:i" }}</div>
+          </div>
+        {% empty %}
+          <div class="text-muted">Chưa có ảnh giao hàng.</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+    </div>
+    <div class="card-footer text-center text-muted small">
+      Cảm ơn bạn đã sử dụng dịch vụ của <b>BLOOM & STORY</b>!  
+      <br>
+      (Nếu có thắc mắc về đơn hàng, vui lòng liên hệ hotline/zalo của shop)
+    </div>
+  </div>
+</div>
+<style>
+.product-item-box {
+  transition: box-shadow 0.2s;
+}
+.product-item-box:hover {
+  box-shadow: 0 2px 12px #0001;
+  background: #fbfbfb;
+}
+</style>
+{% endblock %}

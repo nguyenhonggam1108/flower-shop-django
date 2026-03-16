@@ -14,7 +14,22 @@
 
   <div class="login-container">
     <h2>Đăng nhập</h2>
-    <form method="post" action="">
+      {% if form.non_field_errors %}
+          <div style="
+              background: #ffe5e5;
+              color: #a70000;
+              border: 1px solid #ce3b3b;
+              padding: 10px 15px;
+              margin-bottom: 10px;
+              border-radius: 5px;
+              font-weight: bold;
+          ">
+            {% for error in form.non_field_errors %}
+              <div>{{ error }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+    <form method="post" action="{% url 'accounts:login' %}">
       {% csrf_token %}
       <div class="mb-3">
         <label for="email" class="form-label">Nhập Email đăng nhập</label>

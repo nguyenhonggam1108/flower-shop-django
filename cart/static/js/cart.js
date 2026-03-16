@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (data.success) {
           showToast(`🛒 ${data.message}`);
         } else {
-          showToast('⚠️ Có lỗi xảy ra khi thêm vào giỏ hàng.');
+          showToast(`⚠️ ${data.message}`);
         }
       } catch (error) {
         console.error("Lỗi fetch:", error);

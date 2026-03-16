@@ -1,38 +1,53 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static humanize %}
 {% block content %}
 <div class="container my-5">
   <h2 class="text-center mb-4">Danh Sách Yêu Thích Của Bạn</h2>
 
-  {% if wishlist_items %}
-    <div class="row g-4">
+  <div class="row g-4">
+    {% if wishlist_items %}
       {% for item in wishlist_items %}
         <div class="col-6 col-md-4 col-lg-3">
-          <div class="card h-100 shadow-sm">
-            {% if item.product.image %}
-              <img src="{{ item.product.image.url }}" class="card-img-top" alt="{{ item.product.name }}">
-            {% else %}
-              <img src="{% static 'images/no-image.png' %}" class="card-img-top" alt="Không có ảnh">
-            {% endif %}
-            <div class="card-body text-center">
-              <h5 class="card-title">{{ item.product.name }}</h5>
-              <p class="text-danger fw-bold">{{ item.product.price|floatformat:0 }} VND</p>
-              <a href="{% url 'product_detail' item.product.id %}" class="btn btn-outline-primary btn-sm">Xem chi tiết</a>
+          <div class="card product-card shadow-sm border-0 h-100">
 
-              <form method="POST" action="{% url 'wishlist:remove_from_wishlist' item.product.id %}" class="d-inline">
+            <div class="image-wrapper">
+              {% if item.product.image %}
+                <img src="{{ item.product.image.url }}" class="product-img" alt="{{ item.product.name }}">
+              {% else %}
+                <img src="{% static 'images/no-image.png' %}" class="product-img" alt="Không có ảnh">
+              {% endif %}
+            </div>
+
+            <div class="card-body text-center">
+              <h5 class="card-title text-dark fw-semibold">
+                <a href="{% url 'product_detail' item.product.id %}"
+                   class="product-link text-decoration-none text-dark">
+                   {{ item.product.name }}
+                </a>
+              </h5>
+            </div>
+
+            <div class="card-footer bg-white d-flex justify-content-between align-items-center border-0">
+              <p class="product-price">{{ item.product.price|floatformat:0|intcomma }} VND</p>
+              <form method="POST" action="{% url 'wishlist:remove_from_wishlist' item.product.id %}" class="m-0 p-0 d-inline">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-outline-danger btn-sm">Xóa</button>
+                <button type="submit" class="btn btn-outline-danger btn-sm rounded-circle p-2" title="Xoá khỏi yêu thích">
+                  <i class="bi bi-x-lg"></i>
+                </button>
               </form>
+              <a href="{% url 'product_detail' item.product.id %}" class="btn btn-outline-success btn-sm rounded-circle p-2 ms-1" title="Xem chi tiết">
+                <i class="bi bi-eye"></i>
+              </a>
             </div>
           </div>
         </div>
       {% endfor %}
-    </div>
-  {% else %}
-    <div class="text-center mt-5">
-      <p class="fs-5 text-muted">Bạn chưa có sản phẩm yêu thích nào</p>
-      <a href="{% url 'index' %}" class="btn btn-success">Tiếp tục mua sắm</a>
-    </div>
-  {% endif %}
+    {% else %}
+      <div class="text-center mt-5">
+        <p class="fs-5 text-muted">Bạn chưa có sản phẩm yêu thích nào</p>
+        <a href="{% url 'index' %}" class="btn btn-success">Tiếp tục mua sắm</a>
+      </div>
+    {% endif %}
+  </div>
 </div>
 {% endblock %}

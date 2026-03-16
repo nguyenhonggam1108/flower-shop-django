@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Xác nhận đơn hàng</title>
+</head>
+<body>
+    {% load humanize %}
+    <h2>Xin chào {{ order.full_name }},</h2>
+    <p>Cảm ơn bạn đã đặt hàng tại shop chúng tôi!</p>
+    <h3>Chi tiết đơn hàng #{{ order.id }}:</h3>
+    <ul>
+        {% for item in order.items.all %}
+        <li>{{ item.product_name }} x {{ item.quantity }} - {{ item.subtotal|intcomma }} đ</li>
+        {% endfor %}
+    </ul>
+    <p><strong>Tổng:</strong> {{ order.total_amount|intcomma }} đ</p>
+    <p>Địa chỉ giao hàng: {{ order.recipient_address }}</p>
+    <p>Chúng tôi sẽ liên hệ với bạn sớm nhất!</p>
+</body>
+</html>

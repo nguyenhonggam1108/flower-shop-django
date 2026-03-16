@@ -1,0 +1,95 @@
+{% extends 'supplier_portal/base_supplier.html' %}
+{% load humanize %}
+{% block content %}
+
+<div class="container mt-4">
+    <h2 class="fw-bold mb-4">
+        Phiếu yêu cầu từ <span class="fw-bold" style="color:#0d6efd;">Bloom & Story</span>
+    </h2>
+
+    {% for r in requests %}
+    <div class="card supplier-request-card shadow-sm mb-3">
+        <div class="card-body">
+
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h5 class="card-title-strong mb-1">{{ r.id }}</h5>
+                <span class="request-offer-badge
+                    {% if r.my_offer and r.my_offer.status == 'accepted' %}bg-success
+                    {% elif r.my_offer and r.my_offer.status == 'rejected' %}bg-danger
+                    {% elif r.my_offer %}bg-warning
+                    {% else %}bg-secondary{% endif %}">
+                    {% if r.my_offer %}
+                        {{ r.my_offer.get_status_display }}
+                    {% else %}
+                        Đang mở
+                    {% endif %}
+                </span>
+            </div>
+
+            <p class="text-muted small mb-2">
+                Ngày tạo: {{ r.created_at|date:"d/m/Y H:i" }}
+            </p>
+
+            <strong>Danh sách vật tư:</strong>
+            <div class="table-responsive mb-2">
+              <table class="table table-sm table-bordered align-middle mt-2 mb-0" style="min-width:420px;background: #f8fafc;">
+                <thead class="table-light">
+                  <tr>
+                    <th class="text-center">Tên vật tư</th>
+                    <th class="text-center">Số lượng</th>
+                    <th class="text-center">Đơn vị</th>
+                    <th class="text-center">Giá shop mong muốn</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for item in r.items.all %}
+                  <tr>
+                    <td>
+                      <strong>{{ item.material.name }}</strong>
+                    </td>
+                    <td class="text-end">{{ item.quantity }}</td>
+                    <td class="text-center">{{ item.material.get_unit_display }}</td>
+                    <td class="text-end text-danger fw-semibold">
+                        {% if item.desired_price %}
+                            {{ item.desired_price|floatformat:0|intcomma }} VND
+                        {% else %}
+                            <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            <hr>
+            {% if r.my_offer %}
+                <!-- Supplier đã gửi -->
+                <div class="d-flex justify-content-between align-items-center supplier-offer-action">
+                    <div>
+                        <p class="text-muted small mt-1 mb-0">
+                            Gửi lúc: {{ r.my_offer.created_at|date:"d/m/Y H:i" }}
+                        </p>
+                    </div>
+                    <a href="{% url 'supplier_portal:request_detail' r.id %}"
+                       class="btn btn-outline-info btn-sm">
+                        Xem chi tiết
+                    </a>
+                </div>
+            {% else %}
+                <!-- Chưa gửi offer -->
+                <div class="d-flex justify-content-between align-items-center supplier-offer-action">
+                    <span class="text-muted small fst-italic">Bạn chưa gửi đề nghị.</span>
+                    <form action="{% url 'supplier_portal:supplier_send_offer' r.id %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary btn-sm">Gửi đề nghị</button>
+                    </form>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    {% empty %}
+        <p class="text-muted">Không có phiếu nào.</p>
+    {% endfor %}
+</div>
+
+{% endblock %}

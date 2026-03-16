@@ -2,32 +2,99 @@
 {% load humanize %}
 {% block title %}Chi tiết phiếu nhập #{{ receipt.id }}{% endblock %}
 {% block content %}
-<div class="container mt-4">
-  <a href="{% url 'inventory:receipts_list' %}" class="btn btn-secondary mb-3">← Quay về</a>
-  <h3>Phiếu nhập #{{ receipt.id }}</h3>
-  <p>Nhà cung cấp: {{ receipt.supplier.name }}</p>
-  <p>Người tạo: {{ receipt.created_by }}</p>
-  <p>Ngày: {{ receipt.created_at|date:"Y-m-d H:i" }}</p>
-  <p>Ghi chú: {{ receipt.note|default:"-" }}</p>
-  {% if receipt.invoice_file %}
-    <p>Hóa đơn: <a href="{{ receipt.invoice_file.url }}">Tải về</a></p>
-  {% endif %}
 
-  <h5>Sản phẩm</h5>
-  <table class="table">
-    <thead><tr><th>Hoa</th><th>Số bó</th><th>Đơn giá</th><th>Thành tiền</th></tr></thead>
-    <tbody>
-      {% for item in receipt.items.all %}
-        <tr>
-          <td>{{ item.flower.name }}</td>
-          <td>{{ item.quantity_bunch }}</td>
-          <td>{{ item.unit_price|floatformat:0 }}</td>
-          <td>{{ item.total_price|floatformat:0 }}</td>
+<style>
+.receipt-card {
+    background: #fff;
+    border-radius: 12px;
+    max-width: 850px;
+    margin: 35px auto 0;
+    box-shadow: 0 8px 28px #cfd8e7a1, 0 1.5px 8px #e3e6eb25;
+    padding: 38px 32px 30px 32px;
+    font-size: 1.09rem;
+}
+.receipt-header {
+    border-bottom: 1.5px solid #e2e4ea;
+    padding-bottom: 7px;
+    margin-bottom: 18px;
+}
+.receipt-info-list {
+    margin: 0 0 24px 0;
+    padding: 0;
+    list-style: none;
+}
+.receipt-info-list li {
+    margin-bottom: 7px;
+}
+.receipt-table th, .receipt-table td {
+    vertical-align: middle !important;
+    font-size: 16px;
+}
+.receipt-table td.product-name {
+    font-weight: 500; color: #2277bb;
+}
+.receipt-total-row td {
+    font-weight:bold; font-size: 18px;
+    color: #204070;
+    background: #eef2f8;
+    border-top: 2px solid #d3d7de;
+}
+</style>
+
+<div class="receipt-card">
+  <div class="receipt-header d-flex align-items-center mb-2">
+      <a href="{% url 'inventory:stats' %}" class="btn btn-secondary me-3">← Quay về</a>
+      <h3 class="mb-0">🧾 Phiếu nhập #{{ receipt.id }}</h3>
+  </div>
+  <ul class="receipt-info-list">
+      <li><b>Nhà cung cấp:</b> {{ receipt.supplier.name }}</li>
+      <li><b>Người tạo:</b> {{ receipt.created_by.get_full_name|default:receipt.created_by.username }}</li>
+      <li><b>Ngày nhập:</b> {{ receipt.created_at|date:"d/m/Y H:i" }}</li>
+      <li><b>Ghi chú:</b> {{ receipt.note|default:"-" }}</li>
+      {% if receipt.invoice_file %}
+        <li><b>Hóa đơn:</b> <a href="{{ receipt.invoice_file.url }}" target="_blank">Tải về</a></li>
+      {% endif %}
+  </ul>
+
+  <h5 class="mb-3 fw-semibold">📦 Sản phẩm nhập kho</h5>
+  <div class="table-responsive mb-4">
+    <table class="table table-bordered receipt-table align-middle">
+      <thead class="table-info">
+        <tr class="text-center">
+          <th>#</th>
+          <th>Tên sản phẩm</th>
+          <th>Số bó</th>
+          <th>Đơn giá (VND)</th>
+          <th>Thành tiền (VND)</th>
         </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-
-  <p><strong>Tổng:</strong> {{ receipt.total_amount|floatformat:0 }}</p>
+      </thead>
+      <tbody>
+        {% for item in receipt.items.all %}
+          <tr>
+            <td class="text-center text-muted">{{ forloop.counter }}</td>
+            <!-- Tên sản phẩm hoa/phụ kiện (dùng generic content_object) -->
+            <td class="product-name">
+              {% if item.content_object %}
+                {{ item.content_object.name }}
+              {% else %}
+                <span class="text-danger">Không xác định</span>
+              {% endif %}
+            </td>
+            <td class="text-end">{{ item.quantity_bunch }}</td>
+            <td class="text-end">{{ item.unit_price|floatformat:0|intcomma }}</td>
+            <td class="text-end">{{ item.total_price|floatformat:0|intcomma }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+              <td colspan="5" class="text-center text-muted">Không có sản phẩm nào trong phiếu nhập này.</td>
+          </tr>
+        {% endfor %}
+        <tr class="receipt-total-row">
+          <td colspan="4" class="text-end">Tổng cộng:</td>
+          <td class="text-end">{{ receipt.total_amount|floatformat:0|intcomma }} VND</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>
 {% endblock %}

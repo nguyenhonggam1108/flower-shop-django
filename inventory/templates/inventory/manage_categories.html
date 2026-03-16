@@ -1,0 +1,56 @@
+{% extends "dashboard/base_admin.html" %}
+{% block title %}Quản lý danh mục{% endblock %}
+{% block content %}
+<div class="container mt-4">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h2>Quản lý danh mục</h2>
+            <div>
+              <a href="{% url 'dashboard:dashboard' %}" class="btn btn-secondary me-2">← Quay về Dashboard</a>
+            </div>
+        </div>
+  <p>
+    <a href="{% url 'inventory:category_add' %}" class="btn btn-primary">Thêm danh mục mới</a>
+  </p>
+
+  <form method="get" class="mb-3">
+    <div class="row g-2">
+      <div class="col-auto">
+        <input type="text" name="q" value="{{ q }}" placeholder="Tìm tên..." class="form-control">
+      </div>
+      <div class="col-auto">
+        <select name="source" class="form-select">
+          <option value="">-- Tất cả nguồn --</option>
+          {% for value,label in allowed %}
+            <option value="{{ value }}" {% if value == source %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-auto">
+        <button class="btn btn-outline-secondary">Lọc</button>
+      </div>
+    </div>
+  </form>
+
+  <table class="table">
+    <thead><tr><th>#</th><th>Tên</th><th>Nguồn</th><th>Hành động</th></tr></thead>
+    <tbody>
+      {% for r in results %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td>{{ r.name }}</td>
+          <td>{{ r.label }}</td>
+          <td>
+            <a class="btn btn-sm btn-outline-secondary" href="{% url 'inventory:category_edit' r.app_label r.model_name r.id %}">Sửa</a>
+            {% if user.is_superuser %}
+              <a class="btn btn-sm btn-outline-secondary" href="{% url 'inventory:category_delete' r.app_label r.model_name r.id %}">Xóa</a>
+            {% endif %}
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="4">Không có danh mục.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

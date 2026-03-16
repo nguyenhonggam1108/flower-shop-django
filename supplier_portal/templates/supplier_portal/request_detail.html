@@ -1,0 +1,167 @@
+{% extends 'dashboard/base_admin.html' %}
+{% load static %}
+{% block content %}
+
+<div class="container mt-4">
+
+    <h3>
+        Chi tiết phiếu yêu cầu #{{ request_obj.id }}
+        <span class="badge
+            {% if request_obj.status == 'open' %} bg-warning text-dark
+            {% elif request_obj.status == 'completed' %} bg-success
+            {% elif request_obj.status == 'closed' %} bg-secondary
+            {% elif request_obj.status == 'delivery_failed' %} bg-danger
+            {% endif %}
+        ">
+            {{ request_obj.get_status_display }}
+        </span>
+    </h3>
+
+    <!-- ===== Thông tin phiếu ===== -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <p><strong>Ngày tạo:</strong> {{ request_obj.created_at|date:"d/m/Y H:i" }}</p>
+            <p><strong>Người tạo:</strong> {{ request_obj.created_by }}</p>
+            <p><strong>Ghi chú:</strong> {{ request_obj.note|default:"(Không có)" }}</p>
+        </div>
+    </div>
+
+    {% if request_obj.status == "delivery_failed" and request_obj.failure_reason %}
+    <div class="alert alert-danger">
+        <strong>Lý do giao hàng thất bại:</strong><br>
+        {{ request_obj.failure_reason }}
+    </div>
+    {% endif %}
+
+    <!-- ================================================================================= -->
+    <!-- ================================ STAFF VIEW ===================================== -->
+    <!-- ================================================================================= -->
+    {% if is_staff %}
+    <div class="card mb-3">
+        <div class="card-body">
+
+            <form method="post" action="{% url 'supplier_portal:update_request_status' request_obj.id %}">
+                {% csrf_token %}
+
+                <label><strong>Trạng thái phiếu:</strong></label>
+
+                <select name="status" id="statusSelect" class="form-select w-auto d-inline-block ms-2">
+                    {% for value, label in request_obj.STATUS %}
+                        <option value="{{ value }}" {% if request_obj.status == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+
+                <button class="btn btn-primary btn-sm ms-2">Cập nhật</button>
+
+                <div id="failureReasonBox" class="mt-3"
+                     style="{% if request_obj.status == 'delivery_failed' %}display:block{% else %}display:none{% endif %}">
+                    <label><strong>Lý do giao hàng thất bại:</strong></label>
+                    <textarea name="failure_reason" class="form-control" rows="3">{{ request_obj.failure_reason }}</textarea>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+    <h4>Đề nghị từ tất cả nhà cung cấp</h4>
+    {% for offer in request_obj.offers.all %}
+    <div class="card mb-2">
+        <div class="card-body d-flex justify-content-between align-items-center">
+
+            <div>
+                <strong>{{ offer.supplier.company_name }}</strong> — {{ offer.message }}
+                <span class="badge
+                    {% if offer.status == 'accepted' %} bg-success
+                    {% elif offer.status == 'rejected' %} bg-danger
+                    {% else %} bg-secondary
+                    {% endif %}">
+                    {{ offer.get_status_display }}
+                </span>
+            </div>
+
+            <div>
+                {% if offer.status == 'pending' %}
+                <form method="post" action="{% url 'supplier_portal:approve_offer' offer.id %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button class="btn btn-sm btn-success">Duyệt</button>
+                </form>
+
+                <form method="post" action="{% url 'supplier_portal:reject_offer' offer.id %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button class="btn btn-sm btn-danger">Từ chối</button>
+                </form>
+                {% endif %}
+
+            {% if is_staff %}
+                {% for offer in request_obj.offers.all %}
+                    {% if offer.status == "accepted" %}
+                        <a class="btn btn-success"
+                           href="{% url 'supplier_portal:invoice_create' offer.id %}">
+                            Tạo phiếu nhập kho
+                        </a>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <!-- ================================================================================= -->
+    <!-- ============================== SUPPLIER VIEW ==================================== -->
+    <!-- ================================================================================= -->
+    {% if is_supplier and not is_staff %}
+
+    <h4>Đề nghị của bạn</h4>
+
+    {% if my_offer %}
+        <div class="card mb-3">
+            <div class="card-body">
+
+                <strong>{{ my_offer.supplier.company_name }}</strong> — {{ my_offer.message }}
+
+                <span class="badge
+                    {% if my_offer.status == 'accepted' %} bg-success
+                    {% elif my_offer.status == 'rejected' %} bg-danger
+                    {% else %} bg-secondary
+                    {% endif %}">
+                    {{ my_offer.get_status_display }}
+                </span>
+
+                <p class="text-muted small mt-2">
+                    Gửi lúc: {{ my_offer.created_at|date:"d/m/Y H:i" }}
+                </p>
+            </div>
+        </div>
+
+    {% else %}
+        <p class="text-muted">Bạn chưa gửi đề nghị nào.</p>
+        <a href="{% url 'supplier_portal:supplier_send_offer' request_obj.id %}"
+           class="btn btn-primary btn-sm">Gửi đề nghị cung cấp</a>
+    {% endif %}
+    {% endif %}
+
+    <!-- ===== Nút quay lại ===== -->
+    <div class="mt-3">
+        {% if is_staff %}
+            <a href="{% url 'supplier_portal:request_list' %}" class="btn btn-secondary">
+                ← Quay về phiếu của shop
+            </a>
+        {% endif %}
+    </div>
+
+</div>
+
+{% if request.GET.print == '1' %}
+<script>
+  window.onload = function() {
+    window.open("{% url 'supplier_portal:invoice_pdf' invoice.id %}", "_blank");
+  };
+</script>
+{% endif %}
+
+{% endblock %}

@@ -71,17 +71,14 @@
   <p><strong>Tổng:</strong> {{ order.final_total|floatformat:0|intcomma }} VND</p>
 
   <hr>
-
   <h5>Cập nhật trạng thái</h5>
   <form method="post" action="{% url 'orders_admin:update_status' order.id %}">
     {% csrf_token %}
     {{ status_form.as_p }}
     <button class="btn btn-primary">Cập nhật</button>
   </form>
-
-<hr>
+  <hr>
 <h5>Ảnh giao hàng</h5>
-
 {% comment %} Hiển thị tất cả ảnh liên quan tới đơn hàng {% endcomment %}
 {% for proof in order.delivery_proofs.all %}
   <div class="mb-3">
@@ -102,7 +99,7 @@
     <input type="file" name="image" id="id_image" multiple class="form-control">
   </div>
   <div class="mb-3">
-    <label for="id_note">Ghi chú (tùy chọn)</label>
+    <label for="id_note">Ghi chú </label>
     <textarea name="note" id="id_note" rows="2" class="form-control"></textarea>
   </div>
   <button class="btn btn-success">Tải lên ảnh giao hàng</button>

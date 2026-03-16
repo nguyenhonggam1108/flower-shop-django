@@ -1,0 +1,27 @@
+{% extends 'dashboard/base_admin.html' %}
+{% block title %}Chi tiết phiếu xuất kho{% endblock %}
+{% block content %}
+<h2>Chi tiết phiếu xuất kho #{{ stockout.id }}</h2>
+<p>Người tạo: {{ stockout.created_by }}</p>
+<p>Ngày: {{ stockout.created_at|date:"d/m/Y H:i" }}</p>
+<p>Ghi chú: {{ stockout.note|default:"-" }}</p>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Tên nguyên liệu</th>
+      <th>Số lượng xuất</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in stockout.items.all %}
+    <tr>
+      <td>{{ item.material.name }}</td>
+      <td>{{ item.quantity }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+    <div>
+      <a href="{% url 'dashboard:dashboard' %}" class="btn btn-secondary">← Quay về Dashboard</a>
+    </div>
+{% endblock %}

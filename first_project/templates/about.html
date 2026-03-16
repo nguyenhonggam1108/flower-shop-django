@@ -1,21 +1,96 @@
-
-{% extends 'base.html' %}
-{% block content %}
+{% extends "base.html" %}
 {% load static %}
-<main class="main">
-    <!-- Hero Section -->
-    <section id="hero" class="hero section">
+{% block content %}
 
-      <img src="{% static 'assets/img/logo_home3.png' %}" alt="" data-aos="fade-in">
+<!-- ================= LANDING PAGE - NGẮN GỌN ================= -->
+<section class="about-landing">
+    <div class="container">
+        <h1>Bloom & Story</h1>
+        <p class="tagline">
+            Mỗi bông hoa là một câu chuyện cảm xúc
+        </p>
+        <p>
+            Bloom & Story là thương hiệu hoa tươi chuyên thiết kế những bó hoa tinh tế,
+            giúp bạn gửi gắm yêu thương trong từng khoảnh khắc của cuộc sống.
+        </p>
+    </div>
+</section>
 
-      <div class="container text-center" data-aos="zoom-out" data-aos-delay="100">
-        <div class="row justify-content-center">
-          <div class="col-lg-8">
-            <a href="{% url 'about' %}" class="btn-get-started">About Me</a>
-          </div>
-        </div>
-      </div>
 
-    </section><!-- /Hero Section -->
-  </main>
+<!-- ================= PHIÊN BẢN CAO CẤP - LUXURY ================= -->
+<section class="about-luxury">
+    <div class="container">
+        <h2>Nghệ Thuật Của Hoa Tươi</h2>
+        <p>
+            Tại <strong>Bloom & Story</strong>, hoa không chỉ là một món quà,
+            mà là nghệ thuật kể chuyện bằng cảm xúc.
+        </p>
+        <p>
+            Mỗi thiết kế được tạo nên từ hoa tươi tuyển chọn kỹ lưỡng,
+            kết hợp cùng tư duy thẩm mỹ hiện đại và sự tinh tế trong từng chi tiết.
+        </p>
+        <p>
+            Chúng tôi tin rằng những điều đẹp đẽ nhất luôn đến từ sự giản đơn,
+            chân thành và được trao đi đúng lúc.
+        </p>
+    </div>
+</section>
+
+
+<!-- ================= PHONG CÁCH TRẺ - TỐI GIẢN - HÀN QUỐC ================= -->
+<section class="about-minimal">
+    <div class="container">
+        <h2>Bloom Simply. Tell Your Story.</h2>
+        <p>
+            Hoa tươi. Màu sắc nhẹ nhàng. Cảm xúc chân thật.
+        </p>
+        <p>
+            Bloom & Story mang đến những bó hoa tối giản,
+            dễ chạm đến cảm xúc và phù hợp với nhịp sống hiện đại.
+        </p>
+        <p>
+            Dù là một lời chúc, một lời cảm ơn hay chỉ là một ngày bình thường,
+            hoa vẫn luôn có cách khiến mọi thứ trở nên đặc biệt.
+        </p>
+    </div>
+</section>
+
+
+<!-- ================= NỘI DUNG CHUẨN SEO ================= -->
+<section class="about-seo">
+    <div class="container">
+        <h2>Shop Hoa Tươi Bloom & Story</h2>
+        <p>
+            <strong>Bloom & Story</strong> là shop hoa tươi uy tín,
+            chuyên cung cấp các mẫu hoa tươi đẹp cho sinh nhật,
+            kỷ niệm, lễ cưới, khai trương và các sự kiện quan trọng.
+        </p>
+        <p>
+            Chúng tôi cam kết sử dụng hoa tươi mới mỗi ngày,
+            thiết kế theo yêu cầu và giao hoa tận nơi nhanh chóng.
+        </p>
+        <ul>
+            <li>✔ Hoa tươi cao cấp</li>
+            <li>✔ Thiết kế hoa theo concept riêng</li>
+            <li>✔ Giao hoa đúng hẹn – đúng mẫu</li>
+            <li>✔ Phục vụ tận tâm</li>
+        </ul>
+    </div>
+</section>
+
+
+<!-- ================= CALL TO ACTION ================= -->
+<section class="about-cta">
+    <div class="container">
+        <h2>Hãy Để Hoa Kể Câu Chuyện Của Bạn</h2>
+        <p>
+            Bloom & Story luôn sẵn sàng đồng hành cùng bạn
+            trong những khoảnh khắc đáng nhớ nhất.
+        </p>
+        <a href="{% url 'dropdown:all_flower' %}" class="btn-primary">
+            Khám Phá Bộ Sưu Tập Hoa
+        </a>
+    </div>
+</section>
+
 {% endblock %}

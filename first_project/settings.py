@@ -32,20 +32,29 @@ STATICFILES_DIRS = [
 ]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
+#API khoảng cách
+OPENROUTE_API_KEY = "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImU1MmI5ZjU4OGMyNjQ2OTk4YzBhZTM2Y2ZiMjA3ZTYxIiwiaCI6Im11cm11cjY0In0="
+
+ALLOWED_HOSTS = ["*"]
+CSRF_TRUSTED_ORIGINS = [
+    "https://*.ngrok-free.dev",
+    "http://*.ngrok-free.dev",
+]
+
 # =============================
 # CẤU HÌNH GỬI EMAIL THẬT (GMAIL)
 # # =============================
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-DEFAULT_FROM_EMAIL = 'no-reply@bloomandstory.test'
-# 👉 Email gửi đi (shop)
-EMAIL_HOST_USER = 'bloomandstory@gmail.com'
+# EMAIL_USE_SSL = False
+DEFAULT_FROM_EMAIL = 'bloomaddstory@gmail.com'
+EMAIL_HOST_USER = 'bloomaddstory@gmail.com'
+EMAIL_HOST_PASSWORD = 'wkdvirfwuxeragqn'
 
-# 👉 App password 16 ký tự của Gmail (KHÔNG phải mật khẩu Gmail thật)
-EMAIL_HOST_PASSWORD = 'gydb jzbu wwkq hsfx'  # Thay bằng App Password thật của bạn
+# Email shop để nhận thông báo yêu cầu báo giá
+SHOP_EMAIL = "bloomaddstory@gmail.com"
 
 # DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
@@ -64,6 +73,7 @@ DEBUG = True
 # Application definition
 
 INSTALLED_APPS = [
+    'django_extensions',
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -83,6 +93,8 @@ INSTALLED_APPS = [
     "cart",
     "orders",
     'accessories',
+    "supplier_portal",
+    "widget_tweaks",
 ]
 
 MIDDLEWARE = [
@@ -131,21 +143,30 @@ DATABASES = {
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+    # {
+    #     "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+    # },
+    # {
+    #     "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+    # },
+    # {
+    #     "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+    # },
+    # {
+    #     "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+    # },
+
+{
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {
+            'min_length': 8,
+        }
     },
 ]
 
+# --- dynamic ngrok support (DEV ONLY) ---
 
+# --- end dynamic ngrok support ---
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
@@ -169,4 +190,8 @@ USE_TZ = True
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# settings.py
+import pdfkit
+WKHTMLTOPDF_CMD = r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe"
+PDFKIT_CONFIG = pdfkit.configuration(wkhtmltopdf=WKHTMLTOPDF_CMD)
 

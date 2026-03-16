@@ -1,11 +1,8 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404
-
 from category.models import Category
 from django.views.generic import TemplateView , ListView
-
 from product.models import Product
-
 from accounts.models import Customer
 
 
@@ -22,9 +19,6 @@ class IndexView(TemplateView):
 
 class AboutView(TemplateView):
     template_name = "about.html"
-
-class SaleView(TemplateView):
-    template_name = "sale.html"
 
 class DesignView(TemplateView):
     template_name = "design.html"

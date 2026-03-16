@@ -18,6 +18,9 @@ class AccessoryCategory(models.Model):
         return self.name
 
 
+# =========================
+# Phụ kiện
+# =========================
 class AccessoryItem(models.Model):
     category = models.ForeignKey(
         AccessoryCategory,
@@ -28,8 +31,6 @@ class AccessoryItem(models.Model):
     )
     name = models.CharField(max_length=200)
     slug = models.SlugField(max_length=220, unique=True, blank=True)
-    description = models.TextField(blank=True)
-    price = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     stock = models.IntegerField(default=0)  # tồn theo đơn vị (ví dụ cái / bộ)
     sku = models.CharField(max_length=64, blank=True, null=True)
 
@@ -47,3 +48,4 @@ class AccessoryItem(models.Model):
 
     def __str__(self):
         return self.name
+

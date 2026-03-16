@@ -23,13 +23,14 @@
             </div>
           </div>
         </section><!-- /Hero Section -->
-        <div class="container my-5">
-          <h3 class="text-center fw-bold mb-4">DANH MỤC NỔI BẬT</h3>
-
+        <div class="category-banner position-relative py-2 my-5">
+          <!-- Ảnh hoa PNG/SVG hai bên, thay đường dẫn nếu muốn -->
+          <div class="d-flex align-items-center justify-content-center mb-4 gap-2 gap-md-3">
+            <span class="benefit-side"><span style="font-size:1.13em;">🌸</span> Hoa tươi tuyển chọn</span>
+            <h3 class="text-center fw-bold flex-grow-1 m-0" style="letter-spacing: 0.2px;">DANH MỤC NỔI BẬT</h3>
+            <span class="benefit-side"><span style="font-size:1.12em;">🚚</span> Giao nhanh 2h tại TP.HCM</span>
+          </div>
           <div class="position-relative">
-<!--            &lt;!&ndash; Mũi tên trái &ndash;&gt;-->
-<!--            <button class="arrow-btn left" onclick="scrollLeft()">&#10094;</button>-->
-            <!-- Danh mục cuộn ngang -->
             <div class="d-flex overflow-auto gap-3 px-2" id="categoryScroll">
               {% for cat in category %}
                 <div class="col-6 col-md-4 col-lg-2 mb-4 flex-shrink-0 text-center">
@@ -46,11 +47,8 @@
                 </div>
               {% endfor %}
             </div>
-
-<!--            &lt;!&ndash; Mũi tên phải &ndash;&gt;-->
-<!--            <button class="arrow-btn right" onclick="scrollRight()">&#10095;</button>-->
           </div>
-</div>
+        </div>
     </main>
     <script>
       function scrollLeft() {
@@ -61,6 +59,38 @@
         document.getElementById('categoryScroll').scrollBy({ left: 100, behavior: 'smooth' });
       }
     </script>
-
+<style>
+.category-banner {
+  position: relative;
+  min-height: 180px;
+  background: linear-gradient(90deg,#e8f6f1 0 7%, #fff 18% 82%, #e8f6f1 93% 100%);
+  border-radius: 18px;
+}
+.flower-decor {
+  position: absolute;
+  top: 18px;
+  width: 90px;
+  z-index: 2;
+  opacity: 0.96;
+  pointer-events: none;
+}
+.flower-decor-left { left: 0; }
+.flower-decor-right { right: 0; transform: scaleX(-1); }
+.benefit-side {
+  font-size: 1.03em;
+  color: #549a7d;
+  background: #e4f5ef;
+  padding: 6px 15px 6px 16px;
+  border-radius: 18px;
+  min-width: 152px;
+  text-align: center;
+  font-weight: 500;
+  box-shadow: 0 1px 7px #6abfb02a;
+}
+@media (max-width: 768px) {
+  .benefit-side { display: none !important; }
+  .flower-decor { display: none !important; }
+}
+</style>
 {% endblock %}
 

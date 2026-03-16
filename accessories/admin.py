@@ -9,7 +9,7 @@ class AccessoryCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(AccessoryItem)
 class AccessoryItemAdmin(admin.ModelAdmin):
-    list_display = ('name','category','price','stock','sku')
+    list_display = ('name','category','stock','sku')
     list_filter = ('category',)
     search_fields = ('name','sku')
     prepopulated_fields = {'slug': ('name',)}

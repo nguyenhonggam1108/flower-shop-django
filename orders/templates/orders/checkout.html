@@ -44,14 +44,19 @@
         </div>
 
         <!-- Địa chỉ nhận hàng -->
-        <div class="mb-3">
+        <div class="mb-3 position-relative">
           <label for="shipping_address" class="form-label">Địa chỉ nhận hàng</label>
-          <textarea
+          <input
+            type="text"
             class="form-control"
             id="shipping_address"
             name="shipping_address"
-            rows="2"
-            required>{% if user.is_authenticated and user.customer.address %}{{ user.customer.address }}{% endif %}</textarea>
+            placeholder="Nhập địa chỉ nhận hàng (có gợi ý)"
+            required
+            autocomplete="off">
+          <ul id="suggestions" class="list-group" style="display:none;"></ul>
+            <!-- THÊM cảnh báo hiển thị UI sau ô nhập địa chỉ nhận hàng (dưới <ul id="suggestions">) -->
+            <div id="address-warning" class="text-danger mt-1" style="display:none;"></div>
         </div>
 
         <!-- Số điện thoại và Email -->
@@ -76,15 +81,22 @@
               value="{% if user.is_authenticated %}{{ user.email }}{% endif %}">
           </div>
         </div>
-
         <!-- Ghi chú đơn hàng -->
         <div class="mb-3">
-          <label for="note" class="form-label">Ghi chú đơn hàng (tùy chọn)</label>
+          <label for="note" class="form-label">Ghi chú đơn hàng</label>
           <textarea class="form-control" id="note" name="note" rows="3"></textarea>
         </div>
-
+          <!-- Ngày giờ nhận hàng -->
+        <div class="mb-3">
+          <label for="delivery_datetime" class="form-label">Ngày giờ nhận hàng mong muốn</label>
+          <div class="datetime-validate-wrap position-relative">
+            <input type="datetime-local" class="form-control" id="delivery_datetime" name="delivery_datetime" required>
+            <span id="valid-icon"></span>
+          </div>
+          <div id="delivery-message" class="text-danger mt-1" style="display:none;"></div>
+          <div id="delivery-min-time" class="small text-muted"></div>
+        </div>
       </div>
-
       <!-- Cột phải: Đơn hàng -->
       <div class="col-md-6 mint-border p-4">
         <h4 class="mint-title mb-3">Đơn hàng của bạn</h4>
@@ -159,11 +171,6 @@
           <label class="form-check-label" for="paypal">Thanh toán qua PayPal (Thẻ)</label>
         </div>
 
-        <div class="form-check mb-2">
-          <input class="form-check-input" type="radio" name="payment_method" id="qr" value="qr">
-          <label class="form-check-label" for="qr">Quét mã QR thanh toán</label>
-        </div>
-
         <div class="form-check mb-4">
           <input class="form-check-input" type="radio" name="payment_method" id="cod" value="cod">
           <label class="form-check-label" for="cod">Nhận hàng thanh toán (COD)</label>
@@ -183,4 +190,251 @@
   </form>
 </div>
 
+<style>
+.position-relative { position: relative; }
+#suggestions {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: #fff;
+  border: 1px solid #dee2e6;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 0.5rem 1rem rgba(0,0,0,.05);
+  max-height: 220px;
+  overflow-y: auto;
+  margin-top: -1px;
+  width: 100%;
+}
+#suggestions li {
+  padding: 8px 12px;
+  cursor: pointer;
+  border: none;
+}
+#suggestions li:hover, #suggestions li.active {
+  background: #f1f1f1;
+}
+    .datetime-validate-wrap {
+  position: relative;
+}
+#valid-icon {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.6em;
+  pointer-events: none;
+  /* Mờ đi khi chưa show icon */
+  transition: opacity 0.2s;
+  z-index: 2;
+}
+/* Đẩy nội dung field sang trái để không bị icon che */
+#delivery_datetime.form-control {
+  padding-right: 2.5em;
+}
+</style>
+
+<script>
+// ==== Cấu hình & tiện ích cho giờ mở cửa ====
+const OPEN_HOURS_START = 8;
+const OPEN_MINUTES_START = 30;
+const OPEN_HOURS_END = 20;
+const OPEN_MINUTES_END = 0;
+
+const districts = [
+    "quận 1","quận 3","quận 4","quận 5","quận 6","quận 7","quận 8",
+    "quận 10","quận 11","quận 12","phú nhuận","gò vấp","bình thạnh","tân bình","tân phú"
+];
+
+// ---- Danh sách các từ xác định có phải nội thành TP.HCM không ----
+const HOCHIMINH_KEYWORDS = [
+    "hồ chí minh", "tp hcm", "tp. hcm", "tp hồ chí minh", "tphcm"
+].concat(districts);
+
+// Hàm kiểm tra địa chỉ thuộc TP.HCM
+function isHoChiMinhAddress(address) {
+    const s = address.toLowerCase();
+    return HOCHIMINH_KEYWORDS.some(k => s.includes(k));
+}
+
+function pad(n) { return n < 10 ? '0' + n : n; }
+function toDatetimeLocalString(dateObj) {
+    return dateObj.getFullYear() + '-' +
+        pad(dateObj.getMonth()+1) + '-' +
+        pad(dateObj.getDate()) + 'T' +
+        pad(dateObj.getHours()) + ':' + pad(dateObj.getMinutes());
+}
+function estimateDistance(address) {
+    address = address.toLowerCase();
+    for (let d of districts) {
+        if(address.includes(d)) return 8;
+    }
+    return 15;
+}
+function isWithinOpenHours(date) {
+    const h = date.getHours();
+    const m = date.getMinutes();
+    const startMins = OPEN_HOURS_START * 60 + OPEN_MINUTES_START;
+    const endMins = OPEN_HOURS_END * 60 + OPEN_MINUTES_END;
+    const nowMins = h * 60 + m;
+    return nowMins >= startMins && nowMins <= endMins;
+}
+function getEarliestReceiveTime(address) {
+    let now = new Date();
+    let distance = estimateDistance(address);
+    let mins = 120;
+    if(distance > 10) {
+        mins += Math.ceil((distance - 10) / 5) * 30;
+    }
+    now.setMinutes(now.getMinutes() + mins);
+
+    let startToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), OPEN_HOURS_START, OPEN_MINUTES_START);
+    let endToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), OPEN_HOURS_END, OPEN_MINUTES_END);
+
+    if (now < startToday) {
+        now = startToday;
+    } else if (now > endToday) {
+        now = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, OPEN_HOURS_START, OPEN_MINUTES_START);
+    }
+    return now;
+}
+
+// ==== Quản lý trạng thái chọn ngày giờ =====
+let userTouchedDatetime = false;
+const dtInput = document.getElementById('delivery_datetime');
+const addressWarning = document.getElementById('address-warning');
+
+dtInput.addEventListener('focus', function() {
+    userTouchedDatetime = true;
+});
+dtInput.addEventListener('input', function() {
+    userTouchedDatetime = true;
+});
+
+document.getElementById('shipping_address').addEventListener('input', function() {
+    userTouchedDatetime = false;
+    updateDeliveryMinTime();
+    checkHoChiMinhAddress();
+});
+
+// Hàm kiểm tra địa chỉ nội thành và hiện cảnh báo
+function checkHoChiMinhAddress() {
+    const address = document.getElementById('shipping_address').value;
+    if(address.trim() && !isHoChiMinhAddress(address)) {
+        addressWarning.style.display = '';
+        addressWarning.textContent = "⚠️ Hiện chỉ giao hàng trong khu vực nội thành TP Hồ Chí Minh!";
+    } else {
+        addressWarning.style.display = 'none';
+        addressWarning.textContent = '';
+    }
+}
+
+function updateDeliveryMinTime() {
+    const addressField = document.getElementById('shipping_address');
+    const address = addressField.value;
+    const minMsg = document.getElementById('delivery-min-time');
+    const errorMsg = document.getElementById('delivery-message');
+    const validIcon = document.getElementById('valid-icon');
+    const submitBtns = document.querySelectorAll("button[type=submit]");
+    minMsg.textContent = '';
+    minMsg.style.display = '';
+    minMsg.className = "small text-muted";
+    errorMsg.style.display = 'none';
+    validIcon.innerHTML = '';
+    submitBtns.forEach(btn => btn.disabled = false);
+
+    // CHẶN SUBMIT KHÔNG PHẢI ĐỊA CHỈ NỘI THÀNH
+    if(!address.trim() || !isHoChiMinhAddress(address)) {
+        minMsg.style.display = 'none';
+        errorMsg.style.display = 'none';
+        validIcon.innerHTML = '';
+        submitBtns.forEach(btn => btn.disabled = true);
+        return;
+    }
+
+    let minDateObj = getEarliestReceiveTime(address);
+    let minDt = toDatetimeLocalString(minDateObj);
+    dtInput.setAttribute('min', minDt);
+    if(!dtInput.value) {
+        dtInput.value = minDt;
+    }
+
+    let selectedDate = new Date(dtInput.value);
+    let isValid = selectedDate >= minDateObj && isWithinOpenHours(selectedDate);
+
+    minMsg.textContent = "Thời gian nhận sớm nhất: " + minDateObj.toLocaleString('vi-VN');
+    if(userTouchedDatetime) {
+        if(isValid) {
+            minMsg.className = "small text-success";
+            validIcon.innerHTML = '<i class="fa fa-check-circle text-success"></i>';
+            errorMsg.style.display = 'none';
+            submitBtns.forEach(btn => btn.disabled = false);
+        } else {
+            minMsg.className = "small text-danger";
+            validIcon.innerHTML = '<i class="fa fa-times-circle text-danger"></i>';
+            errorMsg.style.display = '';
+            errorMsg.textContent =
+                `Vui lòng chọn thời gian nhận hàng HỢP LỆ (trong khung ${pad(OPEN_HOURS_START)}h${pad(OPEN_MINUTES_START)}-${pad(OPEN_HOURS_END)}h${pad(OPEN_MINUTES_END)}) và sau ${minDateObj.toLocaleString('vi-VN')}`;
+            submitBtns.forEach(btn => btn.disabled = true);
+        }
+    } else {
+        validIcon.innerHTML = '';
+        errorMsg.style.display = 'none';
+        minMsg.className = "small text-muted";
+    }
+}
+dtInput.addEventListener('input', updateDeliveryMinTime);
+window.onload = function() {
+    checkHoChiMinhAddress();
+    updateDeliveryMinTime();
+};
+
+// ===== AUTOCOMPLETE ĐỊA CHỈ dùng Nominatim OSM =====
+const input = document.getElementById('shipping_address');
+const suggestions = document.getElementById('suggestions');
+
+input.addEventListener('input', function() {
+    const query = input.value;
+    if (query.length < 5) {
+        suggestions.innerHTML = '';
+        suggestions.style.display = 'none';
+        return;
+    }
+    fetch('https://nominatim.openstreetmap.org/search?format=json&limit=5&countrycodes=vn&q=' + encodeURIComponent(query))
+        .then(response => response.json())
+        .then(data => {
+            suggestions.innerHTML = '';
+            if (data.length === 0) {
+                suggestions.innerHTML = '<li class="list-group-item text-muted">Không tìm thấy địa chỉ gợi ý phù hợp.</li>';
+                suggestions.style.display = '';
+                return;
+            }
+            data.forEach(place => {
+                const li = document.createElement('li');
+                li.textContent = place.display_name;
+                li.className = 'list-group-item list-group-item-action';
+                li.style.cursor = 'pointer';
+                li.onclick = function(){
+                    input.value = place.display_name;
+                    suggestions.innerHTML = '';
+                    suggestions.style.display = 'none';
+                    // Sau khi chọn địa chỉ, kiểm tra HoChiMinh và cập nhật UI
+                    checkHoChiMinhAddress();
+                    if(typeof updateDeliveryMinTime === 'function') updateDeliveryMinTime();
+                };
+                suggestions.appendChild(li);
+            });
+            suggestions.style.display = '';
+        });
+});
+document.addEventListener('mousedown', function(e){
+    if (!suggestions.contains(e.target) && e.target !== input) {
+        suggestions.innerHTML = '';
+        suggestions.style.display = 'none';
+    }
+});
+</script>
 {% endblock %}

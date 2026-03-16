@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Redirecting to PayPal…</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+  <div style="max-width:640px;margin:40px auto;text-align:center;font-family:Arial,Helvetica,sans-serif;">
+    <h3>Chuyển tới PayPal để thanh toán…</h3>
+    <p>Nếu trình duyệt không tự điều hướng, nhấn nút "Thanh toán bằng PayPal" bên dưới.</p>
+
+    <form id="paypal_form" action="{{ paypal_url }}" method="post" style="display:block;margin-top:20px;">
+      {% for key, value in paypal_fields.items %}
+        <input type="hidden" name="{{ key }}" value="{{ value|escape }}">
+      {% endfor %}
+      <noscript>
+        <button type="submit" style="padding:10px 20px;font-size:16px;">Thanh toán bằng PayPal</button>
+      </noscript>
+    </form>
+
+    <p style="margin-top:24px;color:#666;font-size:14px;">
+      Hoặc <a href="{{ paypal_url }}" target="_blank" rel="noopener">mở PayPal trong tab mới</a>.
+    </p>
+  </div>
+
+  <script>
+    // Auto-submit form để gửi POST tới PayPal (đảm bảo PayPal nhận params đúng)
+    (function() {
+      var f = document.getElementById('paypal_form');
+      if (f) {
+        try { f.submit(); } catch(e) { /* nếu JS bị chặn thì để người dùng bấm */ }
+      }
+    })();
+  </script>
+</body>
+</html>

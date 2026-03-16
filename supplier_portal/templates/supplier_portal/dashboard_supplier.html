@@ -1,0 +1,24 @@
+{% extends 'supplier_portal/base_supplier.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2>🌼 Trang chính nhà cung cấp</h2>
+    <p class="text-muted">Xin chào {{ request.user.supplier_profile.company_name }}</p>
+
+    <div class="list-group mt-3">
+        <a href="{% url 'supplier_portal:supplier_request_list' %}" 
+           class="list-group-item list-group-item-action">
+           📄 Phiếu yêu cầu từ shop
+        </a>
+
+        <a href="{% url 'supplier_portal:supplier_my_requests' %}" 
+           class="list-group-item list-group-item-action">
+           🧾 Phiếu báo giá đã gửi
+        </a>
+
+        <a href="{% url 'supplier_portal:supplier_profile' %}" 
+           class="list-group-item list-group-item-action">
+           👤 Thông tin nhà cung cấp
+        </a>
+    </div>
+</div>
+{% endblock %}

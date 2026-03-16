@@ -1,0 +1,121 @@
+{% extends 'supplier_portal/base_supplier.html' %}
+{% load humanize %}
+{% block content %}
+<style>
+/* Card & status */
+.card.supplier-myoffer-card {
+    border-radius: 18px;
+    border: none;
+    box-shadow: 0 6px 16px -8px #b8b8b8;
+    background: linear-gradient(120deg,#f6fbff 60%,#f7fafe 100%);
+    margin-bottom: 24px;
+}
+
+.myoffer-status-badge {
+    font-size: 1rem;
+    padding: 8px 24px;
+    border-radius: 25px;
+    font-weight: 600;
+    margin-left: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    box-shadow: 0 1px 8px -4px #b5b5b5;
+}
+.myoffer-status-badge.bg-success  { background: #caffdd !important; color: #289a5b !important; }
+.myoffer-status-badge.bg-danger   { background: #ffefef !important; color: #d94939 !important; }
+.myoffer-status-badge.bg-warning  { background: #fff8d3 !important; color: #9c8203 !important; }
+
+.phieu-table { width: 100%; background: #fcfcfd;}
+.phieu-table th,.phieu-table td { font-size: .99rem; }
+.phieu-table th { background: #ecf6fb; }
+.phieu-table td { background: #fcfcfe; }
+.phieu-table td.text-danger { font-weight: 600; }
+.text-vnd { color: #e32636; font-weight: 600; font-family: 'Arial Rounded MT Bold',Arial,sans-serif }
+
+/* Responsive thon gọn */
+@media (max-width:600px) {
+    .phieu-table th,.phieu-table td { padding: 6px 3px !important; font-size: .93rem;}
+}
+</style>
+
+<div class="container mt-4">
+    <h2 class="mb-4">
+        <span style="font-size:1.2rem;color:#2580ff;vertical-align: middle;"></span>
+        Phiếu yêu cầu <span class="fw-bold" style="color:#2176bd;">đã gửi</span>
+    </h2>
+
+    <!-- Bộ lọc trạng thái -->
+    <form method="GET" class="mb-4 d-flex align-items-center" style="gap: 14px;">
+        <label class="me-2 fw-semibold">Lọc theo trạng thái:</label>
+        <select name="status" class="form-select w-auto">
+            <option value="">-- Tất cả --</option>
+            <option value="pending" {% if request.GET.status == 'pending' %}selected{% endif %}>Đang chờ</option>
+            <option value="accepted" {% if request.GET.status == 'accepted' %}selected{% endif %}>Đã duyệt</option>
+            <option value="rejected" {% if request.GET.status == 'rejected' %}selected{% endif %}>Từ chối</option>
+        </select>
+        <button type="submit" class="btn btn-outline-primary ms-2">Lọc</button>
+    </form>
+
+    {% for offer in offers %}
+        <div class="card supplier-myoffer-card mb-3 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center gap-3 mb-2">
+                    <h5 class="mb-0 fw-bold" style="color:#2574fc">#{{ offer.request.id }}</h5>
+                    <span class="myoffer-status-badge
+                        {% if offer.status == 'accepted' %}bg-success
+                        {% elif offer.status == 'rejected' %}bg-danger
+                        {% else %}bg-warning{% endif %}">
+                        {% if offer.status == 'accepted' %}
+                            ✔ ĐÃ ĐƯỢC CHẤP NHẬN
+                        {% elif offer.status == 'rejected' %}
+                            ✖ ĐÃ BỊ TỪ CHỐI
+                        {% else %}
+                            <span style="font-size:1.2em;">&#8987;</span> CHỜ SHOP DUYỆT...
+                        {% endif %}
+                    </span>
+                </div>
+
+                <div class="mt-2 mb-1 flex-fill">
+                    <span class="text-secondary fw-semibold fst-italic">
+                        {{ offer.message|default:"(Không có nội dung)" }}
+                    </span>
+                </div>
+
+                <!-- Bảng danh sách vật tư -->
+                <div class="table-responsive my-2">
+                  <table class="table table-bordered table-sm phieu-table align-middle mb-2">
+                    <thead>
+                      <tr>
+                        <th class="text-center">Tên vật tư</th>
+                        <th class="text-center">Số lượng</th>
+                        <th class="text-center">Đơn vị</th>
+                        <th class="text-center">Giá shop mong muốn</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for item in offer.request.items.all %}
+                        <tr>
+                            <td><strong>{{ item.material.name }}</strong></td>
+                            <td class="text-end">{{ item.quantity }}</td>
+                            <td class="text-center">{{ item.material.get_unit_display }}</td>
+                            <td class="text-end text-vnd">
+                                {% if item.desired_price %}
+                                    {{ item.desired_price|floatformat:0|intcomma }} đ
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+                <div class="small text-end text-muted mt-2">Gửi lúc: {{ offer.created_at|date:"d/m/Y H:i" }}</div>
+            </div>
+        </div>
+    {% empty %}
+        <p class="text-center text-muted">Bạn chưa gửi đề nghị nào.</p>
+    {% endfor %}
+</div>
+{% endblock %}

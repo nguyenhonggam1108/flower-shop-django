@@ -1,0 +1,124 @@
+{% extends 'supplier_portal/base_supplier.html' %}
+{% load humanize %}
+{% load humanize mathfilters %}
+{% block content %}
+<style>
+.invoice-block {
+    background: #fff;
+    border-radius: 8px;
+    max-width: 820px;
+    margin: 30px auto;
+    box-shadow: 0 5px 18px #d0d6e0cc;
+    padding: 32px 24px;
+}
+.invoice-title {
+    border-bottom: 1px solid #bfcbd4;
+    padding-bottom: 8px;
+    margin-bottom: 16px;
+}
+.invoice-info-list li {
+    margin-bottom: 3px;
+}
+.invoice-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+.invoice-table th, .invoice-table td {
+    border: 1px solid #bfcbd4;
+    padding: 7px 8px;
+    text-align: left;
+    font-size: 14px;
+}
+.invoice-table th {
+    background: #f2f7fb;
+}
+.invoice-total-block {
+    text-align: right;
+    font-size: 16px;
+    margin-top: 12px;
+}
+.text-grey { color: #888; }
+.btn-pdf {
+    float:right;
+    margin-bottom:10px;
+    margin-left:8px;
+}
+</style>
+<div class="invoice-block">
+    <div class="invoice-title">
+        <h2>PHIẾU NHẬP KHO #{{ invoice.id }}</h2>
+    </div>
+    <div>
+        <ul class="invoice-info-list" style="list-style:none">
+            <li><b>Nhà cung cấp:</b> {{ invoice.supplier.company_name }}</li>
+            <li><b>Mã số thuế:</b> {{ invoice.supplier.tax_code }}</li>
+            <li><b>Điện thoại:</b> {{ invoice.supplier.phone }}</li>
+            <li><b>Email:</b> {{ invoice.supplier.user.email }}</li>
+            <li><b>Địa chỉ:</b> {{ invoice.supplier.address }}</li>
+            <li><b>Phiếu nguồn:</b> #{{ invoice.request.id }} | <span class="text-grey">Ghi chú: {{ invoice.request.note }}</span></li>
+            <li><b>Ngày nhập hàng:</b> {{ invoice.created_at|date:"d/m/Y H:i" }}</li>
+            <li><b>Người xác nhận:</b> {{ invoice.created_by.get_full_name|default:invoice.created_by.username }}</li>
+        </ul>
+    </div>
+    <a href="{% url 'supplier_portal:invoice_pdf' invoice.id %}" class="btn btn-primary btn-pdf">In PDF</a>
+    <h5 style="margin-top:25px;">Danh sách hàng nhập</h5>
+    <table class="invoice-table">
+        <tr>
+            <th>STT</th>
+            <th>Mã NL</th>
+            <th>Tên nguyên liệu</th>
+            <th>SL yêu cầu</th>
+            <th>SL nhập</th>
+            <th>Còn thiếu</th>
+            <th>ĐVT</th>
+            <th>Đơn giá</th>
+            <th>Thành tiền</th>
+        </tr>
+        {% for it in invoice.items.all %}
+        <tr>
+            <td style="text-align:center;">{{ forloop.counter }}</td>
+            <td>{{ it.material.code }}</td>
+            <td>{{ it.material.name }}</td>
+            <td style="text-align:right">{{ it.requested_qty|floatformat:2 }}</td>
+            <td style="text-align:right">{{ it.received_qty|floatformat:2 }}</td>
+            <td style="text-align:right">
+                {{ it.requested_qty|default:0|floatformat:2|add:"-"|add:it.received_qty|floatformat:2 }}
+            </td>
+            <td>{{ it.material.unit }}</td>
+            <td style="text-align:right">{{ it.unit_price|floatformat:0|intcomma }}</td>
+            <td style="text-align:right">{{ it.line_total|floatformat:0|intcomma }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <div class="invoice-total-block">
+        <div><b>Tạm tính:</b> {{ invoice.total|floatformat:0|intcomma }} VND</div>
+        <div><b>VAT (<span>{{ invoice.vat_percent }}</span>%):</b>
+            {{ invoice.total|floatformat:0|intcomma }} x {{ invoice.vat_percent }}% =
+            {{ invoice.total|mul:invoice.vat_percent|div:100|floatformat:0|intcomma }} VND
+        </div>
+        <div><b>Thành tiền:</b>
+            {% with grand=invoice.total|mul:invoice.vat_percent|div:100|add:invoice.total %}
+            {{ grand|floatformat:0|intcomma }} VND
+            {% endwith %}
+        </div>
+    </div>
+    {% if not invoice.stocked_in %}
+      <form method="post" action="{% url 'supplier_portal:invoice_confirm' invoice.id %}" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-success">Xác nhận nhập kho</button>
+      </form>
+      {% else %}
+        <span class="badge bg-success">Đã nhập kho</span>
+      {% endif %}
+    {% if invoice.offer and invoice.offer.id %}
+      <a href="{% url 'supplier_portal:invoice_create' invoice.offer.id %}" class="btn btn-secondary" style="margin-bottom:10px;">Quay lại phiếu nhập</a>
+    {% endif %}
+</div>
+   <div class="mt-3">
+            <a href="{% url 'dashboard:dashboard' %}" class="btn btn-secondary">
+                ← Quay về DashBoard
+            </a>
+   </div>
+
+{% endblock %}

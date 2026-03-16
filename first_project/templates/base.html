@@ -31,13 +31,95 @@
   <link rel="stylesheet" href="{% static 'css/product.css' %}?v=2">
   <link rel="stylesheet" href="{% static 'css/checkout.css' %}">
 
-
-
+  <style>
+html { scroll-behavior: smooth; }
+.footer-site {
+  background: #b2cdc7;  /* xanh pastel nhẹ hơn, chữ nổi hơn */
+  color: #243e2e;
+  margin-top: 40px;
+  font-size: 1.04em;
+  letter-spacing: 0.01em;
+  border-top: 5px solid #95ddb3;
+}
+.footer-site-title {
+  font-family: 'Georgia', serif;
+  font-size: 2em;
+  letter-spacing: 2px;
+  color: #24644d;         /* Đậm hơn, nổi bật trên nền */
+  margin-bottom: 0.15em;
+}
+.footer-slogan {
+  font-size: 1.10em;
+  color: #e76285;
+  font-style: italic;
+  margin-bottom: 7px;
+}
+.footer-heading {
+  font-weight: 700;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  color: #24644d;         /* Đậm, dễ đọc */
+  letter-spacing: 0.6px;
+  font-size: 1.07em;
+}
+.footer-menu li {
+  margin-bottom: 7px;
+}
+.footer-menu a {
+  color: #273840;
+  text-decoration: none;
+  transition: color 0.15s;
+  font-size: 1em;
+}
+.footer-menu a:hover {
+  color: #e9b647;
+  text-decoration: underline;
+}
+.footer-contact li {
+  font-size: 0.97em;
+  margin-bottom: 3.5px;
+  color: #253a30;
+}
+.footer-contact li a {
+  color: #247a5b;
+}
+.footer-contact li a:hover {
+  color: #e9b647;
+}
+.footer-btm {
+  background: #243d31;
+  color: #bcdecd;
+  font-size: .99em;
+  letter-spacing: .02em;
+  border-top: 1.5px solid #2d4c3b;
+}
+@media (max-width: 1000px) {
+  .footer-main { padding-left: 15px; padding-right: 15px; }
+  .footer-site-title { font-size: 1.5em; }
+}
+@media (max-width: 760px) {
+  .footer-main .row > .col { margin-bottom: 18px; }
+  .footer-main { padding: 1.3em 3vw; }
+  .footer-site-title { font-size: 1.20em; }
+}
+</style>
   <!-- ✅ CSS riêng cho giỏ hàng -->
   <link rel="stylesheet" href="{% static 'cart.css' %}">
 </head>
 
 <body class="index-page">
+
+    {% if messages %}
+    <div id="toast-container"
+         style="position: fixed; top: 20px; right: 20px; z-index: 9999;">
+      {% for message in messages %}
+        <div class="alert alert-success shadow-sm mb-2 toast-msg">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
 
   <!-- ========== HEADER ========== -->
   <header id="header" class="header d-flex align-items-center light-background sticky-top">
@@ -51,7 +133,9 @@
         <ul>
           <li><a href="{% url 'index' %}" class="active">Home</a></li>
           <li><a href="{% url 'about' %}">Giới Thiệu</a></li>
-          <li><a href="{% url 'sale' %}">Khuyến Mãi</a></li>
+            <li class="nav-item">
+                 <a href="#footer-contact" class="nav-link">Liên hệ</a>
+            </li>
           <li class="dropdown">
             <a href="{% url 'dropdown:all_flower' %}"><span>Tất Cả Sản Phẩm</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
             <ul>
@@ -70,7 +154,6 @@
               <li><a href="{% url 'dropdown:bo_hoa_tuoi' %}">Bó Hoa Tươi</a></li>
             </ul>
           </li>
-          <li><a href="{% url 'design' %}">Design</a></li>
 
           <li class="dropdown account-dropdown">
             <a href="#"><i class="bi bi-person-circle"></i><i class="bi bi-chevron-down toggle-dropdown"></i></a>
@@ -84,6 +167,7 @@
               {% else %}
                 <li><a href="{% url 'accounts:login' %}">Đăng nhập</a></li>
                 <li><a href="{% url 'accounts:register' %}">Đăng ký</a></li>
+                <li><a href="{% url 'supplier_portal:supplier_register' %}"> Đăng Ký Nhà cung cấp</a></li>
               {% endif %}
             </ul>
           </li>
@@ -99,10 +183,10 @@
               <span class="cart-count">{{ cart_total_quantity }}</span>
           </a>
 
-        <a href="#" class="twitter"><i class="bi bi-twitter-x"></i></a>
-        <a href="#" class="facebook"><i class="bi bi-facebook"></i></a>
-        <a href="#" class="instagram"><i class="bi bi-instagram"></i></a>
-        <a href="#" class="linkedin"><i class="bi bi-linkedin"></i></a>
+<!--        <a href="#" class="twitter"><i class="bi bi-twitter-x"></i></a>-->
+<!--        <a href="#" class="facebook"><i class="bi bi-facebook"></i></a>-->
+<!--        <a href="#" class="instagram"><i class="bi bi-instagram"></i></a>-->
+<!--        <a href="#" class="linkedin"><i class="bi bi-linkedin"></i></a>-->
       </div>
     </div>
   </header>
@@ -123,15 +207,43 @@
 
   <!-- FOOTER -->
   <footer id="footer" class="footer light-background">
-    <div class="container text-center">
-      <div class="social-links d-flex justify-content-center mb-3">
-        <a href="#"><i class="bi bi-twitter-x"></i></a>
-        <a href="#"><i class="bi bi-facebook"></i></a>
-        <a href="#"><i class="bi bi-instagram"></i></a>
-        <a href="#"><i class="bi bi-linkedin"></i></a>
+    <div class="footer-main container-xxl py-4">
+        <div class="row row-cols-1 row-cols-md-4 g-4">
+          <!-- Cột 1: Logo và liên hệ -->
+          <div class="col" id="footer-contact">
+            <h4 class="footer-site-title">BLOOM & STORY</h4>
+            <div class="footer-slogan">Chuyên hoa tươi nghệ thuật</div>
+            <ul class="footer-contact list-unstyled mt-3">
+              <li><strong>Địa chỉ:</strong> 114 Dương Quang Đông, Quận 8, HCM</li>
+              <li><strong>Điện thoại:</strong> <a href="tel:0859336677">0859 336 677</a></li>
+              <li><strong>Email:</strong> <a href="mailto:bloomstory@gmail.com">bloomstory@gmail.com</a></li>
+            </ul>
+          </div>
+          <!-- Cột 2: Menu -->
+          <div class="col">
+            <h6 class="footer-heading">MENU</h6>
+            <ul class="footer-menu list-unstyled">
+              <li><a href="{% url 'index' %}">Trang chủ</a></li>
+              <li><a href="{% url 'dropdown:all_flower' %}">Tất cả sản phẩm</a></li>
+              <li><a href="{% url 'dropdown:bo_hoa_tuoi' %}">Bó Hoa Tươi</a></li>
+              <li><a href="{% url 'dropdown:hoa_chuc_mung' %}">Hoa Chúc Mừng</a></li>
+              <li><a href="{% url 'dropdown:hoa_cuoi' %}">Hoa Cưới</a></li>
+              <li><a href="{% url 'dropdown:hoa_sap' %}">Hoa Sáp</a></li>
+              <li><a href="{% url 'dropdown:chau_hoa' %}">Chậu Hoa</a></li>
+            </ul>
+          </div>
+          <!-- Cột 3: Chính sách -->
+          <div class="col">
+            <h6 class="footer-heading">CHÍNH SÁCH</h6>
+            <ul class="footer-menu list-unstyled">
+              <li><a href="#">Thanh toán</a></li>
+              <li><a href="#">Chính sách giao hàng</a></li>
+              <li><a href="#">Chính sách bảo mật</a></li>
+              <li><a href="#">Chính sách đổi/trả</a></li>
+            </ul>
+          </div>
+        </div>
       </div>
-      <p class="small text-muted">Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a> | Distributed by ThemeWagon</p>
-    </div>
   </footer>
 
   <!-- Scroll Top -->
@@ -148,5 +260,22 @@
   <script src="{% static 'js/cart.js' %}?v=5"></script>
   <script src="{% static 'js/wishlist.js' %}?v=1"></script>
   <script src="{% static 'js/checkout.js' %}"></script>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const toasts = document.querySelectorAll(".toast-msg");
+
+        toasts.forEach((toast) => {
+            setTimeout(() => {
+                toast.style.transition = "opacity 0.3s ease";
+                toast.style.opacity = "0";
+
+                // remove khỏi DOM sau khi fade-out
+                setTimeout(() => toast.remove(), 300);
+            }, 3000); // 3 giây
+        });
+    });
+    </script>
+
 </body>
 </html>

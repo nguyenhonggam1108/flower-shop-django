@@ -1,0 +1,58 @@
+{% extends "dashboard/base_admin.html" %}
+{% block title %}Xóa danh mục{% endblock %}
+{% block content %}
+<div class="container mt-4">
+         <div class="d-flex justify-content-between align-items-center mb-3">
+          <h2>Xóa danh mục: <strong>{{ obj.name }}</strong></h2>
+            <div>
+              <a href="{% url 'dashboard:dashboard' %}" class="btn btn-secondary me-2">← Quay về Dashboard</a>
+            </div>
+        </div>
+  {% if related %}
+    <div class="alert alert-danger">
+      <strong>Cảnh báo:</strong> Danh mục này có các bản ghi liên quan. Không nên xóa nếu bạn không chắc chắn.
+    </div>
+
+    {% for r in related %}
+      <div class="mb-4">
+        <h5>{{ r.related_verbose }} — {{ r.count }} bản ghi</h5>
+        {% if r.count %}
+          <p>Ví dụ (tối đa 50):</p>
+          <ul>
+            {% for s in r.samples %}
+              <li>
+                {% if s.url %}
+                  <a href="{{ s.url }}">{{ s.display }}</a>
+                {% else %}
+                  {{ s.display }}
+                {% endif %}
+                {% if s.field_value is not None %}
+                  — ({{ r.field_name_on_related }}: {{ s.field_value }})
+                {% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p>Không có bản ghi liên quan ở mục này.</p>
+        {% endif %}
+
+        {% if not r.can_set_null %}
+          <div class="text-danger">Lưu ý: Quan hệ này không thể set NULL. Bạn phải chuyển hoặc xóa các bản ghi trước khi xóa danh mục.</div>
+        {% else %}
+          <div class="text-muted">Quan hệ này cho phép set NULL; hệ thống có thể tự đặt các items về NULL khi admin xác nhận.</div>
+        {% endif %}
+      </div>
+    {% endfor %}
+  {% else %}
+    <div class="alert alert-warning">Danh mục không có bản ghi liên quan. Bạn có thể xóa an toàn.</div>
+  {% endif %}
+
+  <form method="post" class="mt-3">{% csrf_token %}
+    <button type="submit" class="btn btn-danger"
+      {% if total_related_count > 0 and not user.is_superuser %}disabled title="Có bản ghi liên quan, chỉ admin mới có thể xóa"{% endif %}>
+      Xóa
+    </button>
+    <a href="{% url 'inventory:manage_categories' %}" class="btn btn-secondary">Hủy</a>
+  </form>
+</div>
+{% endblock %}

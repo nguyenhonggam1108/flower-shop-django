@@ -1,0 +1,189 @@
+{% extends "dashboard/base_admin.html" %}
+{% block title %}Thống kê kho{% endblock %}
+{% load humanize %}
+{% block content %}
+
+<style>
+.dashboard-stat-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 32px #ccd9ee22;
+  padding: 28px 34px 12px 34px;
+  animation: fadeIn 1.2s;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(32px);}
+  to   { opacity: 1; transform: none;}
+}
+.table thead th, .table-light th {
+  background: #f1f7fd !important;
+  font-weight: bold;
+  border-bottom: 2px solid #b8d0ea !important;
+  letter-spacing: 0.4px;
+}
+.table th, .table td {
+  font-size: 1.07rem;
+}
+.table-striped tbody tr:nth-of-type(odd) {
+  background: #f7fbff;
+}
+.table-danger {
+  background: #fff2f3 !important;
+  color: #e74c3c !important;
+  font-weight: bold;
+}
+h2, h4, h5 { font-weight: 600; }
+.totalsum-block {
+  padding: 11px 0 0 4px;
+  font-size: 1.17em;
+  color: #1852a4;
+  font-weight: bold;
+  animation: fadeIn 1.3s 0.3s backwards;
+}
+.stat-section-title {
+  margin-top: 42px;
+  margin-bottom: 15px;
+  font-size: 1.28rem;
+  color: #1b3b6d;
+  letter-spacing: 0.5px;
+  font-weight: 700;
+}
+.btn-info, .btn-outline-info { min-width: 86px;}
+</style>
+
+<div class="container mt-4 mb-5 dashboard-stat-card">
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0" style="color:#27509c; letter-spacing:0.5px;">
+      <i class="bi bi-bar-chart-line"></i> Thống kê kho
+    </h2>
+    <div>
+      <a href="{% url 'dashboard:dashboard' %}" class="btn btn-secondary">← Quay về Dashboard</a>
+    </div>
+  </div>
+
+  <div class="row mt-4 mb-2">
+    <div class="col-md-6 mb-5">
+      <h4 style="color:#ff5297"><i class="bi bi-flower1"></i> Hoa lẻ</h4>
+      <table class="table table-striped table-bordered rounded shadow-sm">
+        <thead>
+          <tr>
+            <th>Tên</th>
+            <th>Tồn</th>
+            <th>Cảnh báo</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in report_flowers %}
+            <tr {% if r.low_stock %}class="table-danger animate__animated animate__shakeX"{% endif %}>
+              <td><span class="fw-medium">{{ r.obj.name }}</span></td>
+              <td>{{ r.stock|default:"-" }}</td>
+              <td>{% if r.low_stock %}<span class="text-danger fw-bold"><i class="bi bi-exclamation-triangle"></i> Tồn thấp</span>{% endif %}</td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="3" class="text-center text-muted">Không có sản phẩm</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="col-md-6 mb-5 fadeIn">
+      <h4 style="color:#f0b81b"><i class="bi bi-stars"></i> Phụ kiện</h4>
+      <table class="table table-striped table-bordered rounded shadow-sm">
+        <thead>
+          <tr>
+            <th>Tên</th>
+            <th>Tồn</th>
+            <th>Cảnh báo</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in report_accessories %}
+            <tr {% if r.low_stock %}class="table-danger animate__animated animate__headShake"{% endif %}>
+              <td><span class="fw-medium">{{ r.obj.name }}</span></td>
+              <td>{{ r.stock|default:"-" }}</td>
+              <td>{% if r.low_stock %}<span class="text-danger fw-bold"><i class="bi bi-exclamation-triangle"></i> Tồn thấp</span>{% endif %}</td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="3" class="text-center text-muted">Không có sản phẩm</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="totalsum-block">
+    Tổng tồn: <span class="text-primary">{{ total_stock|intcomma }}</span>
+  </div>
+
+  <!-- PHIẾU NHẬP KHO -->
+  <hr class="mt-4 mb-4">
+  <h4 class="stat-section-title">📦 Danh sách phiếu nhập kho</h4>
+  <div class="table-responsive mb-4">
+    <table class="table table-bordered table-hover align-middle" style="background:#fafdff;">
+      <thead class="table-light">
+        <tr>
+          <th class="text-center">#</th>
+          <th>Nhà cung cấp</th>
+          <th>Tổng tiền</th>
+          <th>Ngày nhập</th>
+          <th>Ghi chú</th>
+          <th>Người tạo</th>
+          <th>SL mặt hàng</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for inrec in goods_receipts %}
+          <tr>
+            <td class="text-center fw-bold">{{ inrec.id }}</td>
+            <td>{{ inrec.supplier.name|default:"-" }}</td>
+            <td class="text-end text-primary fw-bold">{{ inrec.total_amount|floatformat:0|intcomma }} VND</td>
+            <td>{{ inrec.created_at|date:'d/m/Y H:i' }}</td>
+            <td class="text-muted">{{ inrec.note|default:"-" }}</td>
+            <td>{{ inrec.created_by.username|default:"-" }}</td>
+            <td class="text-center">{{ inrec.items.count }}</td>
+            <td>
+              <a href="{% url 'inventory:receipts_detail' inrec.id %}" class="btn btn-info btn-sm">Chi tiết</a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="8" class="text-center text-muted">Không có phiếu nhập kho</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- PHIẾU XUẤT KHO -->
+  <h4 class="stat-section-title">🚚 Danh sách phiếu xuất kho</h4>
+  <div class="table-responsive mb-4">
+    <table class="table table-bordered table-hover align-middle" style="background:#fafdff;">
+      <thead class="table-light">
+        <tr>
+          <th class="text-center">#</th>
+          <th>Ngày xuất</th>
+          <th>Ghi chú</th>
+          <th>Người tạo</th>
+          <th>SL mặt hàng</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for outrec in stockout_list %}
+          <tr>
+            <td class="text-center fw-bold">{{ outrec.id }}</td>
+            <td>{{ outrec.created_at|date:'d/m/Y H:i' }}</td>
+            <td class="text-muted">{{ outrec.note|default:"-" }}</td>
+            <td>{{ outrec.created_by.username|default:"-" }}</td>
+            <td class="text-center">{{ outrec.items.count }}</td>
+            <td>
+              <a href="{% url 'supplier_portal:stockout_detail' outrec.id %}" class="btn btn-outline-info btn-sm">Chi tiết</a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="6" class="text-center text-muted">Không có phiếu xuất kho</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

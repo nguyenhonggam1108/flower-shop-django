@@ -17,12 +17,12 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
-
+from django.contrib.auth import views as auth_views
 from first_app import views
 
 from first_app.views import IndexView
 
-from first_app.views import AboutView, SaleView, DesignView
+from first_app.views import AboutView,  DesignView
 
 from django.conf import settings
 from django.conf.urls.static import static
@@ -42,9 +42,9 @@ urlpatterns = [
     path('dashboard/', include('dashboard.urls')),
     path('inventory/', include('inventory.urls')),
     path('accessories/', include('accessories.urls')),
+    path("supplier/", include("supplier_portal.urls", namespace="supplier_portal")),
     path('index/', IndexView.as_view(), name='index'),
     path('about/', AboutView.as_view(), name='about'),
-    path('sale/', SaleView.as_view(), name='sale'),
     path('design/',DesignView.as_view(), name='design'),
     path('paypal/', include('paypal.standard.ipn.urls')),
     path("admin/", admin.site.urls),

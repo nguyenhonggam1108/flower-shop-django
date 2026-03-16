@@ -1,0 +1,107 @@
+/* Styles for request_create.html - put this file under your static/css/ directory */
+
+/* Card */
+.request-card {
+  border-radius: 0.6rem;
+  box-shadow: 0 6px 18px rgba(28, 40, 50, 0.06);
+  margin-bottom: 1.5rem;
+  background: #ffffff;
+}
+
+/* Section title */
+.section-title {
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+/* Recent requests cards */
+.recent-card {
+  border: 1px solid rgba(0,0,0,0.04);
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.recent-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(37,51,63,0.06);
+}
+
+/* Table look & spacing */
+#formset-table th {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+#formset-table td {
+  vertical-align: middle;
+}
+#formset-table .form-control,
+#formset-table .form-select {
+  min-height: 38px;
+  padding: 6px 10px;
+  font-size: 0.95rem;
+}
+
+/* Hide actual DELETE checkboxes (we use the button) */
+input[type="checkbox"][name$="-DELETE"] {
+  display: none;
+}
+
+/* Row marked as deleted */
+tr.row-deleted {
+  opacity: 0.45;
+  text-decoration: line-through;
+}
+
+/* Buttons */
+.remove-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Small responsive tweaks */
+@media (max-width: 767px) {
+  #formset-table th, #formset-table td { font-size: 0.9rem; }
+  .request-card .card-header h2 { font-size: 1.1rem; }
+}
+
+/* Provide visual focus for selects and inputs */
+.form-control:focus, .form-select:focus {
+  box-shadow: 0 0 0 0.15rem rgba(13,110,253,0.12);
+  border-color: #0d6efd;
+}
+
+/* Utility to ensure consistent spacing of alerts */
+#messages-container .alert {
+  margin-bottom: 0.75rem;
+}
+
+.my-offer-card {
+  border-left: 5px solid #007bff;
+  border-radius: 16px;
+  background: #fff;
+  margin-bottom: 20px;
+  box-shadow: 0 6px 18px -8px #b4b4b4;
+  transition: box-shadow .2s;
+}
+.my-offer-card:hover {
+  box-shadow: 0 8px 18px -4px #4e4376;
+}
+.offer-status-badge {
+  font-size: 1rem !important;
+  padding: 7px 18px;
+  border-radius: 16px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  margin-right: 10px;
+}
+.status-badge-accepted { background: #d1e7dd; color: #166534; }
+.status-badge-rejected { background: #f8d7da; color: #991b1b; }
+.status-badge-pending  { background: #fff3cd; color: #946200; }
+.offer-link { color: #0d6efd; text-decoration: none; }
+.offer-link:hover { color: #003865; text-decoration: underline; }
+
+@media (max-width: 600px) {
+  .my-offer-card { font-size: 0.96rem; }
+  .offer-status-badge { font-size: 0.95rem; padding: 5px 10px; }
+}

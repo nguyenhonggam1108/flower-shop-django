@@ -1,0 +1,151 @@
+{% extends 'dashboard/base_admin.html' %}
+{% load humanize %}
+{% block title %}Thống kê doanh thu nâng cao{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+  <h2>💰 Thống kê doanh thu</h2>
+    <a href="{% url 'dashboard:dashboard' %}" class="btn btn-secondary me-2">← Quay về Dashboard</a>
+  <!-- ========= KPI BOXES ========= -->
+  <div class="row mt-4">
+
+    <div class="col-md-3">
+      <div class="p-3 bg-success text-white rounded shadow">
+        <h5>Hôm nay</h5>
+        <h3>{{ revenue_today|floatformat:0|intcomma }} VND</h3>
+      </div>
+    </div>
+    {% if not is_staff_view %}
+    <div class="col-md-3">
+      <div class="p-3 bg-info text-white rounded shadow">
+        <h5>Tuần này</h5>
+        <h3>{{ revenue_week|floatformat:0|intcomma }} VND</h3>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="p-3 bg-primary text-white rounded shadow">
+        <h5>Tháng này</h5>
+        <h3>{{ revenue_month|floatformat:0|intcomma }} VND</h3>
+      </div>
+    </div>
+      {% endif %}
+    <div class="col-md-3">
+      <div class="p-3 bg-dark text-white rounded shadow">
+        <h5>Tổng đơn hàng</h5>
+        <h3>{{ total_orders }}</h3>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========= FILTER (ADMIN) ========= -->
+  {% if not is_staff_view %}
+  <form method="get" class="row g-2 mt-4 mb-4">
+    <div class="col-md-3">
+      <label>Từ ngày</label>
+      <input type="date" name="start_date" value="{{ start_date }}" class="form-control">
+    </div>
+    <div class="col-md-3">
+      <label>Đến ngày</label>
+      <input type="date" name="end_date" value="{{ end_date }}" class="form-control">
+    </div>
+    <div class="col-md-2 d-flex align-items-end">
+      <button class="btn btn-primary w-100">Xem</button>
+    </div>
+  </form>
+  {% endif %}
+
+  <!-- ========= BAR CHART ========= -->
+  <canvas id="revenueChart" height="100"></canvas>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script>
+    const ctx = document.getElementById('revenueChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: {{ labels|safe }},
+        datasets: [{
+          label: 'Doanh thu (VNĐ)',
+          data: {{ values|safe }},
+          backgroundColor: 'rgba(255, 159, 64, 0.8)',
+        }]
+      },
+      options: {
+        scales: {
+          y: { beginAtZero: true },
+          x: { title: { display: true, text: 'Ngày' } }
+        }
+      }
+    });
+  </script>
+
+  <!-- ========= LIST REVENUE ========= -->
+  {% if not is_staff_view %}
+  <h4 class="mt-5">📋 Doanh thu theo từng ngày</h4>
+
+  <table class="table table-bordered mt-3">
+    <thead>
+      <tr>
+        <th>Ngày</th>
+        <th>Doanh thu</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in revenue_list %}
+      <tr>
+        <td>{{ row.date }}</td>
+        <td>{{ row.total|floatformat:0|intcomma }} VND</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+
+    <h4 class="mt-5">🔥 Top 5 sản phẩm bán chạy</h4>
+<table class="table table-striped mt-3">
+  <thead>
+    <tr>
+      <th>Sản phẩm</th>
+      <th>Số lượng bán</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in top_products %}
+    <tr>
+      <td>{{ item.product__name }}</td>
+      <td>{{ item.total_qty }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+
+    <h4 class="mt-5">👑 Top 5 khách hàng chi tiêu nhiều nhất</h4>
+<table class="table table-bordered mt-3">
+  <thead>
+    <tr>
+      <th>Khách hàng</th>
+      <th>Tổng chi tiêu</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for cus in top_customers %}
+    <tr>
+      <td>
+        {% if cus.user__username %}
+          {{ cus.user__first_name }} {{ cus.user__last_name }} ({{ cus.user__username }})
+        {% else %}
+          Khách không đăng nhập
+        {% endif %}
+      </td>
+      <td>{{ cus.total_spent|floatformat:0|intcomma:0 }} VND</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends "dashboard/base_admin.html" %}
+{% block title %}Danh sách phụ kiện{% endblock %}
+{% load humanize %}
+{% block content %}
+<div class="container mt-4">
+
+    <h2 class="mb-3">📦 Danh sách phụ kiện</h2>
+    <!-- Bảng phụ kiện -->
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Tên phụ kiện</th>
+                    <th>Danh mục</th>
+                    <th>Giá</th>
+                    <th>Tồn kho</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.category.name}}</td>
+                    <td>{{ item.price }}đ</td>
+                    <td>{{ item.stock }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center">Không có phụ kiện nào</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+{% endblock %}

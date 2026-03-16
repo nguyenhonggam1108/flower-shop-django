@@ -40,6 +40,13 @@ class CartView(View):
 class AddToCartView(View):
     def post(self, request, product_id):
         product = get_object_or_404(Product, id=product_id)
+        if product.status == 'out_of_stock':
+            # Nếu dùng Ajax: trả về JSON lỗi luôn!
+            return JsonResponse({
+                'success': False,
+                'message': "Sản phẩm đã hết hàng, không thể thêm vào giỏ!",
+                'cart_count': None
+            })
         quantity = int(request.POST.get('quantity', 1))
 
         if request.user.is_authenticated:

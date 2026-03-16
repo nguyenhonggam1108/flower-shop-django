@@ -39,3 +39,123 @@
   .inv-card { padding: 14px; }
   .form-control, .form-select { height: 40px; }
 }
+/* CSS override mạnh mẽ cho trang thống kê kho */
+
+body {
+    background: #f6f7fb !important;
+}
+
+.container, .container.mt-4 {
+    background: #fff !important;
+    border-radius: 16px !important;
+    box-shadow: 0 4px 28px rgba(44, 62, 80, 0.09) !important;
+    padding: 32px 28px !important;
+    margin-top: 36px !important;
+    margin-bottom: 36px !important;
+}
+
+h2, .container h2, .container.mt-4 h2 {
+    font-weight: bold !important;
+    color: #243a68 !important;
+    margin-bottom: 30px !important;
+    font-size: 2.1rem !important;
+}
+
+h4, .container h4 {
+    font-weight: bold !important;
+    color: #25629f !important;
+    margin-bottom: 18px !important;
+    font-size: 1.22rem !important;
+}
+
+.table, .container .table {
+    background: #fff !important;
+    border-radius: 10px !important;
+    overflow: hidden !important;
+    margin-bottom: 18px !important;
+    box-shadow: 0 1px 3px rgba(33,37,41,0.06) !important;
+    font-size: 1.03rem !important;
+}
+
+.table thead th, .container .table thead th {
+    background: #f1f6f8 !important;
+    font-weight: 600 !important;
+    color: #1b2437 !important;
+    border-top: none !important;
+    letter-spacing: 0.4px !important;
+}
+
+.table-striped > tbody > tr:nth-of-type(odd), .container .table-striped > tbody > tr:nth-of-type(odd) {
+    background: #f7fbfd !important;
+}
+
+.table tbody tr.table-danger, .container .table tbody tr.table-danger {
+    background: #ffeded !important;
+    color: #e53935 !important;
+}
+
+.table tbody tr.table-danger td, .container .table tbody tr.table-danger td {
+    color: #e53935 !important;
+    font-weight: 600 !important;
+}
+
+.text-danger, .container .text-danger {
+    color: #e54036 !important;
+    font-weight: 600 !important;
+    font-size: 1rem !important;
+}
+
+.btn, .btn-secondary, .container .btn, .container .btn-secondary {
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    padding: 8px 22px !important;
+    font-size: 1.01rem !important;
+}
+
+.btn-secondary, .container .btn-secondary {
+    background: #73849a !important;
+    border-color: #73849a !important;
+    color: #fff !important;
+}
+
+.btn-secondary:hover, .btn-secondary:focus, .container .btn-secondary:hover, .container .btn-secondary:focus {
+    background: #47536b !important;
+    border-color: #47536b !important;
+    color: #fff !important;
+}
+
+h5, .container h5 {
+    margin-top: 2.4rem !important;
+    font-size: 1.08rem !important;
+    color: #223 !important;
+    text-align: left !important;
+}
+
+@media (max-width: 900px) {
+    .container, .container.mt-4 {
+        padding: 10px 4px !important;
+    }
+    .table, .container .table {
+        font-size: 0.97rem !important;
+    }
+    h2, .container h2 { font-size: 1.35rem !important; }
+    h4, .container h4 { font-size: 1rem !important; }
+}
+
+@media (max-width: 600px) {
+    .container, .container.mt-4 {
+        padding: 2px !important;
+    }
+    .row.mt-5, .container .row.mt-5 {
+        flex-direction: column !important;
+    }
+    .col-md-6, .container .col-md-6 {
+        width: 100% !important;
+        margin-bottom: 18px !important;
+    }
+    h4, h5, .container h4, .container h5 { text-align: center !important; }
+}
+
+/* Nếu vẫn muốn test file đã apply, hãy uncomment dòng này:
+body { border: 5px solid red !important; }
+*/

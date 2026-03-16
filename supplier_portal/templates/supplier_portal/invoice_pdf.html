@@ -1,0 +1,103 @@
+{% load humanize %}
+{% load humanize mathfilters %}
+<html>
+<head>
+    <meta charset="utf-8">
+<style>
+body { font-family: 'DejaVu Sans', Arial, Helvetica, sans-serif; font-size: 13px; }
+.header { text-align: center; margin-bottom: 15px; }
+.f-table { width: 100%; border-collapse: collapse; margin-bottom: 20px;}
+.f-table th, .f-table td { border: 1px solid #888; padding: 6px 7px; text-align: left;}
+.f-table th { background: #f0f0f0;}
+.footer { margin-top: 35px; }
+
+    body, table, th, td {
+      font-family: "Times New Roman", Times, serif;
+      font-size: 13px;
+    }
+    .header { text-align: center; margin-bottom: 15px; }
+    .f-table { width: 100%; border-collapse: collapse; margin-bottom: 20px;}
+    .f-table th, .f-table td { border: 1px solid #888; padding: 6px 7px; text-align: left;}
+    .f-table th { background: #f0f0f0;}
+    .footer { margin-top: 35px; }
+</style>
+</head>
+<body>
+  <div class="header">
+    <h2>CÔNG TY {{ invoice.supplier.company_name|upper }}</h2>
+    <h3>PHIẾU NHẬP KHO</h3>
+    <p>Mã số hóa đơn: <b>#{{ invoice.id }}</b></p>
+    <p>Ngày nhập: <b>{{ invoice.created_at|date:"d/m/Y H:i" }}</b></p>
+    <p>Nhân viên nhập kho: <b>{{ invoice.created_by.get_full_name|default:invoice.created_by.username }}</b></p>
+  </div>
+
+  <p><b>Thông tin nhà cung cấp:</b>
+      <br/>Tên: {{ invoice.supplier.company_name }}
+      <br/>Mã số thuế: {{ invoice.supplier.tax_code }}
+      <br/>Địa chỉ: {{ invoice.supplier.address }}
+      <br/>Điện thoại: {{ invoice.supplier.phone }}
+      <br/>Email: {{ invoice.supplier.user.email }}
+  </p>
+  <p>
+      <b>Phiếu yêu cầu nguồn:</b> #{{ invoice.request.id }}<br>
+      <b>Ghi chú phiếu:</b> {{ invoice.request.note }}
+  </p>
+  <table class="f-table">
+      <thead>
+        <tr>
+          <th>STT</th>
+          <th>Mã NL</th>
+          <th>Tên nguyên liệu</th>
+          <th>SL yêu cầu</th>
+          <th>SL nhập</th>
+          <th>ĐVT</th>
+          <th>Đơn giá</th>
+          <th>Thành tiền</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for it in invoice.items.all %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td>{{ it.material.code }}</td>
+          <td>{{ it.material.name }}</td>
+          <td style="text-align:right">{{ it.requested_qty|floatformat:2 }}</td>
+          <td style="text-align:right">{{ it.received_qty|floatformat:2 }}</td>
+          <td>{{ it.material.unit }}</td>
+          <td style="text-align:right">{{ it.unit_price|floatformat:0|intcomma }}</td>
+          <td style="text-align:right">{{ it.line_total|floatformat:0|intcomma }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr>
+          <th colspan="7" style="text-align:right">Tạm tính:</th>
+          <th style="text-align:right">{{ invoice.total|floatformat:0|intcomma }}</th>
+        </tr>
+        <tr>
+          <th colspan="7" style="text-align:right">VAT ({{ invoice.vat_percent }}%):</th>
+          <th style="text-align:right">{{ invoice.total|mul:invoice.vat_percent|div:100|floatformat:0|intcomma }}</th>
+        </tr>
+        <tr>
+          <th colspan="7" style="text-align:right">Thành tiền:</th>
+          <th style="text-align:right">
+            {{ invoice.total|add:invoice.total|mul:invoice.vat_percent|div:100|floatformat:0|intcomma }}
+          </th>
+        </tr>
+      </tfoot>
+  </table>
+
+  <div class="footer">
+    <table style="width:100%">
+      <tr>
+        <td style="width:50%;text-align:center;">
+          <b>Người giao hàng</b><br/><br/><br/>.................................
+        </td>
+        <td style="width:50%;text-align:center;">
+          <b>Người nhận hàng</b><br/><br/><br/>.................................
+        </td>
+      </tr>
+    </table>
+  </div>
+</body>
+</html>

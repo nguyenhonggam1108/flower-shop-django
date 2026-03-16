@@ -1,0 +1,50 @@
+{% extends "dashboard/base.html" %}
+{% block content %}
+<h2 class="mb-3">DANH SÁCH TOÀN BỘ MÃ KHUYẾN MÃI</h2>
+<table class="table table-bordered table-hover">
+  <thead>
+    <tr>
+      <th>STT</th>
+      <th>Mã</th>
+      <th>Mô tả</th>
+      <th>Loại</th>
+      <th>Giá trị</th>
+      <th>Miễn phí vận chuyển</th>
+      <th>Bắt đầu</th>
+      <th>Kết thúc</th>
+      <th>Kích hoạt</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for c in coupons %}
+      <tr>
+        <td>{{ forloop.counter }}</td>
+        <td>{{ c.code }}</td>
+        <td>{{ c.description }}</td>
+        <td>
+          {% if c.discount_type == "PERCENT" %}%
+          {% else %}₫
+          {% endif %}
+        </td>
+        <td>{{ c.discount_value|floatformat:0 }}</td>
+        <td>
+          {% if c.free_shipping %}
+            <span class="badge bg-success">Có</span>
+          {% else %}
+            <span class="badge bg-secondary">Không</span>
+          {% endif %}
+        </td>
+        <td>{{ c.start_date|date:"d/m/Y H:i" }}</td>
+        <td>{{ c.expiry_date|date:"d/m/Y H:i" }}</td>
+        <td>
+          {% if c.active %}
+            <span class="badge bg-success">Kích hoạt</span>
+          {% else %}
+            <span class="badge bg-danger">Tắt</span>
+          {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

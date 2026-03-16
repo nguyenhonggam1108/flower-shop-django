@@ -1,0 +1,28 @@
+{% extends "dashboard/base_admin.html" %}
+{% block content %}
+
+<h3>PHIẾU XUẤT KHO</h3>
+
+<form method="post">
+{% csrf_token %}
+{{ form.as_p }}
+
+{{ formset.management_form }}
+
+<table class="table">
+<tr>
+    <th>Nguyên liệu</th>
+    <th>Số lượng xuất</th>
+</tr>
+{% for f in formset %}
+<tr>
+    <td>{{ f.material }}</td>
+    <td>{{ f.quantity }}</td>
+</tr>
+{% endfor %}
+</table>
+
+<button class="btn btn-danger">Xuất kho</button>
+</form>
+
+{% endblock %}

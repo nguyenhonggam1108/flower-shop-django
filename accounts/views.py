@@ -3,11 +3,10 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 
 from .forms import RegisterForm, LoginForm
 from .models import Customer
-
 
 class RegisterView(View):
     def get(self, request):
@@ -47,7 +46,8 @@ class RegisterView(View):
 class LoginView(View):
     def get(self, request):
         form = LoginForm()
-        return render(request, 'accounts/login.html', {'form': form})
+        role = request.GET.get("role")
+        return render(request, 'accounts/login.html', {'form': form, 'role': role})
 
     def post(self, request):
         form = LoginForm(request.POST)
@@ -55,7 +55,7 @@ class LoginView(View):
             email_or_username = form.cleaned_data['email']
             password = form.cleaned_data['password']
 
-            # ✅ Cho phép đăng nhập bằng email hoặc username
+            # Tìm user theo email hoặc username
             try:
                 if '@' in email_or_username:
                     user_obj = User.objects.get(email=email_or_username)
@@ -70,11 +70,31 @@ class LoginView(View):
                     login(request, user)
                     messages.success(request, 'Đăng nhập thành công!')
 
-                    # ✅ Chuyển hướng theo vai trò
+                    # 1) Nếu có next param (GET hoặc POST) thì ưu tiên
+                    next_url = request.GET.get('next') or request.POST.get('next')
+                    if next_url:
+                        return redirect(next_url)
+
+                    # 2) Phân loại theo vai trò
+                    # superuser/staff -> dashboard
                     if user.is_superuser or user.is_staff:
                         return redirect('dashboard:dashboard')
-                    else:
-                        return redirect(reverse('index'))
+
+                    # supplier -> supplier request list (nếu user có supplier_profile)
+                    # dùng hasattr để kiểm tra tránh import vòng
+                    if hasattr(user, 'supplier_profile'):
+                        # nếu bạn dùng flag approved, có thể kiểm tra thêm:
+                        try:
+                            profile = user.supplier_profile
+                            if not getattr(profile, 'approved', True):
+                                # nếu chưa được duyệt, chuyển tới trang thông báo (nếu có)
+                                return redirect(reverse('supplier_portal:not_approved'))
+                        except Exception:
+                            pass
+                        return redirect(reverse('supplier_portal:supplier_request_list'))
+
+                    # default: khách hàng -> index
+                    return redirect(reverse('index'))
                 else:
                     form.add_error(None, 'Mật khẩu không đúng.')
             else:
@@ -85,6 +105,15 @@ class LoginView(View):
 
 class LogoutView(View):
     def get(self, request):
+        is_supplier = hasattr(request.user, "supplier_profile")
+
         logout(request)
         messages.success(request, 'Bạn đã đăng xuất thành công!')
+
+        if is_supplier:
+            # Supplier → quay lại login
+            return redirect(reverse('accounts:login') + "?role=supplier")
+
+
+        # Còn lại → về trang index
         return redirect(reverse('index'))

@@ -1,0 +1,49 @@
+{% extends 'supplier_portal/base_supplier.html' %}
+{% block content %}
+
+<div class="container mt-4">
+
+    <h2 class="mb-4">👤 Thông tin nhà cung cấp</h2>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <!-- Thông tin user liên kết -->
+            <h5 class="text-primary mb-3">Thông tin tài khoản</h5>
+            <p><strong>Tên đăng nhập:</strong> {{ profile.user.username }}</p>
+            <p><strong>Họ tên:</strong> {{ profile.user.get_full_name|default:"(Chưa cập nhật)" }}</p>
+            <p><strong>Email:</strong> {{ profile.user.email }}</p>
+
+            <hr>
+
+            <!-- Thông tin công ty -->
+            <h5 class="text-primary mb-3">Thông tin doanh nghiệp</h5>
+
+            <p><strong>Tên công ty:</strong> {{ profile.company_name }}</p>
+
+            <p><strong>Mã số thuế:</strong>
+                {{ profile.tax_code|default:"(Không có)" }}
+            </p>
+
+            <p><strong>Số điện thoại:</strong>
+                {{ profile.phone|default:"(Chưa cập nhật)" }}
+            </p>
+
+            <p><strong>Địa chỉ:</strong>
+                {{ profile.address|default:"(Chưa cập nhật)" }}
+            </p>
+
+            <p><strong>Trạng thái duyệt:</strong>
+                {% if profile.approved %}
+                    <span class="badge bg-success">Đã duyệt</span>
+                {% else %}
+                    <span class="badge bg-warning text-dark">Chưa duyệt</span>
+                {% endif %}
+            </p>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
